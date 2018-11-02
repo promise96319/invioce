@@ -1,0 +1,142 @@
+<style lang="less">
+  .userinfo {
+    margin: 80rpx;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .userinfo-avatar {
+    width: 80rpx;
+    height: 80rpx;
+    border-radius: 50%;
+  }
+
+  .userinfo-nickname {
+    color: #aaa;
+  }
+
+  .get-photo {
+    margin: 80rpx;
+  }
+</style>
+<template>
+  <view class="container">
+    <view class="userinfo" @tap="handleViewTap">
+      <image class="userinfo-avatar" src="{{ userInfo.avatarUrl }}" background-size="cover"/>
+      <view class="userinfo-nickname">{{ userInfo.nickName }}</view>
+    </view>
+
+    <view>
+      <button type="primary" class="get-photo" @tap="getPhoto">
+        点击拍照或者选取照片
+      </button>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+
+  export default class Home extends wepy.page {
+    config = {
+      navigationBarTitleText: '发票验证'
+    }
+
+    data = {
+      userInfo: {
+        nickName: '加载中...'
+      },
+    }
+
+    methods = {
+      // 调用拍照或者选取照片接口
+      getPhoto () {
+        let that = this
+        wx.chooseImage({
+          count: 1,
+          sizeType: 'original',
+          sourceType: ['camera', 'album'],
+          success (res) {
+            wx.getFileSystemManager().readFile({
+              filePath: res.tempFilePaths[0], //选择图片返回的相对路径
+              encoding: 'base64', //编码格式
+              success: res2 => { //成功的回调
+                // console.log('成功获取图片');
+                // console.log('data:image/png;base64,' + res.data)
+                that.handleIdentifyInvoice(res2.data)
+              }
+            })
+          }
+        })
+      }
+    }
+
+    // 获取access_token
+    handleIdentifyInvoice (base64) {
+      wx.showToast({
+        title: '正在识别...',
+        icon: 'loading',
+        mask: true,
+        duration: 60000
+      })
+      let that = this
+      wx.request({
+        url: 'https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=UVVOjbGt1XpSR9cW6GCSh77t&client_secret=mwHCmi819kPcVlOn7r8XAbnerudcOGwB&',
+        method: 'POST',
+        success (res) {
+          // console.log('成功获取access_token');
+          that.getInvoiceData(res.data.access_token, base64)
+        },
+        fail (err) {
+          console.log(err);
+        }
+      })
+    }
+
+    // 根据access_token 调用百度云发票识别接口
+    getInvoiceData (access_token, base64) {
+      // console.log('发送识别发票的请求');
+      let that = this
+      wx.request({
+        url: 'https://aip.baidubce.com/rest/2.0/ocr/v1/vat_invoice?access_token=' + access_token,
+        data: {
+          image: base64,
+          detect_direction: true
+        },
+        header: {
+              'content-type': 'application/x-www-form-urlencoded'
+        },
+        method: 'POST',
+        success: (res) => {
+          if (res.data.words_result) {
+            console.log(res.data.words_result);
+            wx.hideToast()
+            wx.navigateTo({url: '../message/message?message=' + JSON.stringify(res.data.words_result)})
+          }
+          else {
+            wx.hideToast()
+            wx.showToast({
+              icon: 'none',
+              title: '识别失败，请重新上传照片',
+              duration: 2000
+            })
+          }
+        },
+        fail: (err) => {
+          wx.hideToast()
+          wx.showToast({
+            icon: 'none',
+            title: '识别失败，请重新上传照片',
+            duration: 2000
+          })
+          console.log(err);
+        }
+      })
+    }
+
+    onLoad() {
+      this.userInfo = this.$parent.globalData.userInfo
+    }
+  }
+</script>

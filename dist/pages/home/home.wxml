@@ -1,0 +1,13 @@
+
+  <view class="container">
+    <view class="userinfo" bindtap="handleViewTap">
+      <image class="userinfo-avatar" src="{{ userInfo.avatarUrl }}" background-size="cover"/>
+      <view class="userinfo-nickname">{{ userInfo.nickName }}</view>
+    </view>
+
+    <view>
+      <button type="primary" class="get-photo" bindtap="getPhoto">
+        点击拍照或者选取照片
+      </button>
+    </view>
+  </view>

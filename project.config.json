@@ -1,0 +1,15 @@
+{
+	"description": "fapiao shibie",
+	"setting": {
+		"urlCheck": false,
+		"es6": false,
+		"postcss": false,
+		"minified": false,
+		"newFeature": true
+	},
+	"compileType": "miniprogram",
+	"appid": "wx3006c281c28c3c7d",
+	"projectname": "fapiaoshibie",
+	"miniprogramRoot": "./dist",
+	"condition": {}
+}

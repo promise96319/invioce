@@ -1,0 +1,16 @@
+
+<view class="container">
+  <scroll-view class="img-container" scroll-x>
+    <view class="real-img">
+      <image src="{{ tempFilePath }}"/>
+    </view>
+  </scroll-view>
+  <view class="certificate">
+      <canvas canvas-id="canvasId" class="canvas"/>
+  </view>
+
+  <view class="confirm-container">
+    <button type="primary" bindtap="hanldeSavePic">确定</button>
+    <button type="primary" bindtap="handleCancel">取消</button>
+  </view>
+</view>

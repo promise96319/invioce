@@ -1,0 +1,389 @@
+<style lang="less">
+.certificate {
+  position: absolute;
+  left: -30000rpx;
+}
+
+.canvas-container {
+  width: 1500rpx;
+}
+
+.canvas {
+  width: 1500rpx;
+  height: 1500rpx;
+  display: inline-block;
+}
+
+.img-container {
+  width: 100%;
+  height: 1500rpx;
+}
+
+.real-img {
+  width: 1500rpx;
+  height: 1500rpx;
+}
+
+image {
+  width: 1500rpx;
+  height: 1500rpx;
+}
+
+.confirm-container {
+  display: flex;
+  margin: 60rpx 0 100rpx;
+}
+
+.confirm-container button {
+  margin: 0 40rpx;
+}
+
+</style>
+
+<template>
+<view class="container">
+  <scroll-view class="img-container" scroll-x>
+    <view class="real-img">
+      <image src="{{ tempFilePath }}"></image>
+    </view>
+  </scroll-view>
+  <view class="certificate">
+      <canvas canvas-id="canvasId" class="canvas"></canvas>
+  </view>
+
+  <view class="confirm-container">
+    <button type="primary" @tap="hanldeSavePic">确定</button>
+    <button type="primary" @tap="handleCancel">取消</button>
+  </view>
+</view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import util from '../../utils/util'
+
+export default class Sale extends wepy.page {
+  config = {
+    navigationBarTitleText: '凭证'
+  }
+  components = {
+
+  }
+
+  data = {
+    width: 0,
+    height: 0,
+    result: {},
+    tempFilePath: ''
+  }
+
+  computed = {}
+
+  methods = {
+    hanldeSavePic () {
+      let _self = this
+          wx.getImageInfo({
+            src: _self.tempFilePath,
+            success (res1) {
+              wx.saveImageToPhotosAlbum({
+                  filePath: res1.path,
+                  success: function (res2) {
+                    console.log(res2)
+                  },
+                  fail: function (err) {
+                    console.log(err)
+                  }
+              })
+            }
+      })
+    },
+    handleCancel () {
+      wx.navigateBack({
+          delta: 1
+      })
+    }
+  }
+
+   onLoad(options) {
+    this.result = JSON.parse(options.result)
+    // this.result = {
+    //   "InvoiceNum": "32330739",
+    //   "SellerName": "北京冠月餐饮管理有限公司",
+    //   "CommodityTaxRate": [{
+    //     "word": "6%",
+    //     "row": "1"
+    //   }],
+    //   "SellerBank": "北京市海淀区中关村东路1号院2号楼101室62798988",
+    //   "Checker": "",
+    //   "TotalAmount": "18647.17",
+    //   "CommodityAmount": [{
+    //     "word": "18647.17",
+    //     "row": "1"
+    //   }, {
+    //     "word": "18647.17",
+    //     "row": "2"
+    //   }],
+    //   "InvoiceDate": "2018年08月19日",
+    //   "CommodityTax": [{
+    //     "word": "1118.83",
+    //     "row": "1"
+    //   }, {
+    //     "word": "1738.83",
+    //     "row": "2"
+    //   }],
+    //   "PurchaserName": "上海有略教育科技有限公司",
+    //   "CommodityNum": [{
+    //     "word": "",
+    //     "row": "1"
+    //   }],
+    //   "PurchaserBank": "",
+    //   "Remarks": "校验码00345802256",
+    //   "Password": "52//5501+14906-+03<-3084-89<980719>+25-4+63867<83<+0301-*01+9<*0/90</46-<029884>54-28>>039/+/36*+93/785>04>",
+    //   "SellerAddress": "号101室62798988911",
+    //   "PurchaserAddress": "",
+    //   "InvoiceCode": "011001800104",
+    //   "CommodityUnit": [{
+    //     "word": "",
+    //     "row": "1"
+    //   }],
+    //   "Payee": "甄婷",
+    //   "PurchaserRegisterNum": "91310110MAG0WN",
+    //   "CommodityPrice": [{
+    //     "word": "",
+    //     "row": "1"
+    //   }],
+    //   "NoteDrawer": "顾新杰",
+    //   "AmountInWords": "万仟柒佰陆拾陆圆整",
+    //   "AmountInFiguers": "19766.00",
+    //   "TotalTax": "1118.30",
+    //   "InvoiceType": "专用发票",
+    //   "SellerRegisterNum": "911101087975834338",
+    //   "CommodityName": [{
+    //     "word": "*餐饮服务*餐费",
+    //     "row": "1"
+    //   }, {
+    //     "word": "*ai教育",
+    //     "row": "2"
+    //   }],
+    //   "CommodityType": [{
+    //     "word": "",
+    //     "row": "1"
+    //   }],
+    //   "CheckCode": "0034580225619590949",
+    //   "identity": "购买方",
+    //   "pay": "业务招待",
+    //   "source": "公司员工",
+    //   "personName": "张三啊",
+    //   "discription": "我来自中国，我再djkdkj直播，我得过世界冠军，我也办过转,你要额你都能记得看暗号都会",
+    //   "belongProject": "天地大同"
+    // }
+
+    let that = this
+
+    // 获取屏幕宽
+    wx.getSystemInfo({
+      success(res) {
+        that.width = res.windowWidth
+        // that.height = res.windowHeight
+      }
+    })
+
+
+// 函数定义区域 ===================
+    // 设置一个基准比例
+    let cal = (px) => {
+      return  px / 375 * that.width
+    }
+
+    // canvas换行显示
+    let lineWrap = (ctx, str, fontsize, lineheight, width, x, y) => {
+      ctx.setFontSize(fontsize)
+      let textArr = []
+      let index = 0
+      for (let i = 1; i < str.length; i++) {
+        if (ctx.measureText(str.substring(index, i)).width >= width) {
+          textArr.push(str.substring(index, i))
+          index = i
+        }
+      }
+
+      textArr.push(str.substring(index))
+
+      for (let i = 0; i < textArr.length; i++) {
+        ctx.fillText(textArr[i], x, y + lineheight * (i + 1))
+      }
+    }
+
+    const ctx = wx.createCanvasContext('canvasId')
+
+    ctx.setFillStyle('white')
+    ctx.fillRect(cal(0), cal(0), cal(750), cal(120) + (8 + 2 * this.result.CommodityName.length) * cal(36))
+    ctx.setFillStyle('black')
+
+    // 标题
+    ctx.setFontSize(cal(23))
+    ctx.setTextAlign('center')
+    ctx.fillText('记账凭证', cal(375), cal(40))
+
+    // 时间及编号
+    let date = new Date()
+    let year = date.getFullYear()
+    let month = date.getMonth() + 1
+    let day = date.getDate()
+    ctx.translate(cal(730), cal(70))
+    ctx.setFontSize(cal(13))
+    ctx.setTextAlign('right')
+    ctx.fillText(year + ' 年 ' + month + ' 月 ' + day + ' 号      记字第 ' + Date.now().toString().substr(6) + Math.random().toFixed(4)*10000 + ' 号', cal(0), cal(22))
+
+    // 表格
+    // 外框
+    ctx.translate(cal(-710), cal(50))
+    ctx.setStrokeStyle('#000')
+    ctx.strokeRect(0, 0, cal(710), cal(36) * (this.result.CommodityName.length * 2  + 3))
+
+    // 内框
+    let row = this.result.CommodityName.length * 2 + 3
+    for (let i = 2; i < row - 1; i++) {
+      ctx.setStrokeStyle('#999')
+      ctx.moveTo(cal(200), cal(36) * i)
+      ctx.lineTo(cal(710), cal(36) * i)
+      ctx.stroke()
+    }
+
+    ctx.moveTo(0, cal(36))
+    ctx.lineTo(cal(710), cal(36))
+
+    ctx.moveTo(0, cal(36) * (row -1))
+    ctx.lineTo(cal(710), cal(36) * (row -1))
+
+    ctx.moveTo(0, cal(36) * row)
+    ctx.lineTo(cal(710), cal(36) * row)
+
+    ctx.moveTo(cal(200), 0)
+    ctx.lineTo(cal(200), cal(36) * (row -1))
+
+    ctx.moveTo(cal(330), cal(18))
+    ctx.lineTo(cal(330), cal(36) * (row - 1))
+
+    ctx.moveTo(cal(200), cal(18))
+    ctx.lineTo(cal(460), cal(18))
+
+    ctx.moveTo(cal(460), 0)
+    ctx.lineTo(cal(460), cal(36) * row)
+
+    ctx.moveTo(cal(585), 0)
+    ctx.lineTo(cal(585), cal(36) * row)
+
+    ctx.stroke()
+
+    // 表头
+    ctx.setFontSize(cal(15))
+    ctx.setTextAlign('center')
+    ctx.fillText('摘要', cal(100), cal(24))
+    ctx.fillText('借方金额', cal(522), cal(24))
+    ctx.fillText('贷方金额', cal(646), cal(24))
+
+    ctx.setTextAlign('center')
+    ctx.setFontSize(cal(14))
+    ctx.fillText('会计科目', cal(330), cal(15))
+    ctx.fillText('科目代码', cal(265), cal(33))
+    ctx.fillText('科目名称', cal(395), cal(33))
+
+    // 内容部分
+    // 摘要内容
+    ctx.translate(0, cal(36))
+    ctx.setTextAlign('left')
+    lineWrap(ctx, this.result.discription, cal(14), cal(16), cal(160), cal(20), cal(10))
+
+    // 价税合计
+    ctx.setTextAlign('center')
+    ctx.fillText('1122', cal(265), cal(24))
+    ctx.fillText('应收账款', cal(395), cal(24))
+    ctx.fillText(this.result.AmountInFiguers, cal(522), cal(24))
+
+    // 物品、服务等
+    ctx.setTextAlign('center')
+    for (let i = 0; i < this.result.CommodityName.length; i++) {
+      ctx.fillText('5001', cal(265), cal(24) + (1 + 2 * i) * cal(36))
+      ctx.fillText('主营业务收入', cal(395), cal(24) + (1 + 2 * i) * cal(36))
+      ctx.fillText(this.result.CommodityAmount[i].word, cal(646), cal(24) + (1 + 2 * i) * cal(36))
+
+      ctx.fillText('2221.01.01', cal(265), cal(24) + (2 + 2 * i) * cal(36))
+      lineWrap(ctx, '应交税费 - 增值税 - 销项税', cal(14), cal(14), cal(130), cal(395), cal(2) + (2 + 2 * i) * cal(36) )
+      // ctx.fillText(lineWrap(), cal(395), cal(24) + 2 * cal(36))
+      ctx.fillText(this.result.CommodityTax[i].word, cal(646), cal(24) + (2 + 2 * i) * cal(36))
+    }
+
+    // 合计
+    ctx.translate(0, cal(36) * (this.result.CommodityName.length * 2 + 1))
+    ctx.fillText('合计', cal(230), cal(24))
+    ctx.fillText(this.result.AmountInFiguers, cal(522), cal(24))
+    ctx.fillText(this.result.AmountInFiguers, cal(646), cal(24))
+
+    // 信息栏
+    ctx.beginPath()
+    // 边框
+    ctx.setTextAlign('center')
+    ctx.translate(0, cal(36))
+    let leftTitle = ['会计总管', '客户', '供应商', '项目']
+    for (let i = 1; i <= 4; i++) {
+      ctx.fillText(leftTitle[i - 1], cal(50), cal(24) + (i - 1) * cal(36))
+      ctx.moveTo(0, cal(36) * i)
+      ctx.lineTo(cal(710), cal(36) * i)
+    }
+
+    ctx.moveTo(cal(355), cal(36))
+    ctx.lineTo(cal(355), cal(36) * 4)
+    ctx.fillText('员工', cal(405), cal(36) + cal(24))
+
+    ctx.moveTo(cal(455), cal(36))
+    ctx.lineTo(cal(455), cal(36) * 4)
+    ctx.fillText('其他第三方', cal(405), cal(36) * 2 + cal(24))
+
+    ctx.moveTo(cal(710), 0)
+    ctx.lineTo(cal(710), cal(36) * 4)
+    ctx.fillText('发票号码', cal(405), cal(36) * 3 + cal(24))
+
+    ctx.moveTo(0, 0)
+    ctx.lineTo(0, cal(36) * 4)
+
+    ctx.moveTo(cal(100), 0)
+    ctx.lineTo(cal(100), cal(36) * 4)
+
+    ctx.moveTo(cal(190), 0)
+    ctx.lineTo(cal(190), cal(36))
+    let title = ['记账', '出纳', '审核', '制单']
+    for (let i = 0; i < 4; i++) {
+      ctx.fillText(title[i], cal(190 + 130 * i + 25), cal(24) )
+      ctx.moveTo(cal(190 + 130 * i + 50), 0)
+      ctx.lineTo(cal(190 + 130 * i + 50), cal(36))
+      ctx.moveTo(cal(190 + 130 * i + 130), 0)
+      ctx.lineTo(cal(190 + 130 * i + 130), cal(36))
+    }
+    ctx.stroke()
+
+    ctx.fillText(this.$parent.globalData.userInfo.nickName, cal(190 + 130 * 3 + 90), cal(24))
+    ctx.fillText(this.result.InvoiceNum, cal(582), cal(24) + cal(36) * 3)
+    this.result.belongProject && ctx.fillText(this.result.belongProject, cal(228), cal(24) + cal(36) * 3)
+    ctx.fillText(this.result.PurchaserName, cal(228), cal(24) + cal(36))
+
+    ctx.draw(true, () => {
+      wx.canvasToTempFilePath({
+          x: 0,
+          y: 0,
+          width: cal(750),
+          height: cal(120) + (8 + 2 * this.result.CommodityName.length) * cal(36),
+          canvasId: 'canvasId',//canvasId和标签里面的id对应
+          success: (res) => {
+              //将获取到的图片临时路径set到canvasSaveimg中
+              that.tempFilePath = res.tempFilePath
+              that.$apply()
+          },
+          fail: (err) => {
+            console.log(err);
+          }
+      })
+    })
+  }
+}
+</script>

@@ -1,0 +1,17 @@
+.userinfo {
+  margin: 80rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.userinfo-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+}
+.userinfo-nickname {
+  color: #aaa;
+}
+.get-photo {
+  margin: 80rpx;
+}

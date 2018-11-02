@@ -1,0 +1,177 @@
+
+<view class="container">
+  <view class="message-detail">
+    <view class="message-container">
+      <text class="title">发票类型:</text>
+      <view class="value">
+        <view>
+          <radio-group class="radio-group" bindchange="radioChange">
+            <label class="radio"  wx:for="{{ invoiceType }}" wx:key="idx">
+                <radio value="{{ item.value }}" checked="{{ message.InvoiceType === item.value }}"/>{{item.value}}
+              </label>
+          </radio-group>
+        </view>
+      </view>
+    </view>
+
+    <view class="message-container">
+      <text class="title">购买方:</text>
+      <view class="value">
+        <view>
+          <input type="text" placeholder="购买方" value="{{ message.PurchaserName }}" bindinput="onInput" data-wpyoninput-a="PurchaserName"/>
+        </view>
+      </view>
+    </view>
+
+    <view class="message-container">
+      <text class="title">销售方:</text>
+      <view class="value">
+        <view>
+          <input type="text" placeholder="销售方" value="{{ message.SellerName }}" bindinput="onInput" data-wpyoninput-a="SellerName"/>
+        </view>
+      </view>
+    </view>
+
+    <view class="message-container"  wx:for="{{ message.CommodityName.length }}" wx:key="index">
+      <text class="title">支付信息{{ index + 1 }}:</text>
+      <view class="value things-container">
+        <view class="things-detail">
+          <text class="things-name">货物或应税劳务、服务名称:</text>
+          <view class="things-value">
+            <input type="text" placeholder="名称" value="{{ message.CommodityName[index].word  }}" bindinput="onInputDetail" data-wpyoninputdetail-a="CommodityName" data-wpyoninputdetail-b="{{ index }}"/>
+          </view>
+        </view>
+
+        <view class="things-detail">
+          <text class="things-name">金额:</text>
+          <view class="things-value">
+            <input type="digit" placeholder="金额" value="{{ message.CommodityAmount[index].word  }}" bindinput="onInputDetail" data-wpyoninputdetail-a="CommodityAmount" data-wpyoninputdetail-b="{{ index }}"/>
+          </view>
+        </view>
+
+        <view class="things-detail">
+          <text class="things-name">税额:</text>
+          <view class="things-value">
+            <input type="digit" placeholder="税额" value="{{ message.CommodityTax[index].word  }}" bindinput="onInputDetail" data-wpyoninputdetail-a="CommodityTax" data-wpyoninputdetail-b="{{ index }}"/>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="message-container">
+      <text class="title">价税合计:</text>
+      <view class="value">
+        <view>
+          <input type="text" placeholder="价税合计" value="{{ calTotalMoney }}" bindinput="onInput" disabled data-wpyoninput-a="AmountInFiguers"/>
+        </view>
+      </view>
+    </view>
+
+    <view class="message-container">
+      <text class="title">开票日期:</text>
+      <view class="value">
+        <view>
+          <input type="text" placeholder="开票日期" value="{{ message.InvoiceDate }}" bindinput="onInput" data-wpyoninput-a="InvoiceDate"/>
+        </view>
+      </view>
+    </view>
+
+    <view class="message-container">
+      <text class="title">发票号码:</text>
+      <view class="value">
+        <view>
+          <input type="text" placeholder="发票号码" value="{{ message.InvoiceNum }}" bindinput="onInput" data-wpyoninput-a="AmountInFiguers"/>
+        </view>
+      </view>
+    </view>
+
+    <view class="message-container discription">
+      <text class="title">业务描述:
+        <text>(必填)</text></text>
+      <view class="value">
+        <view>
+          <textarea bindinput="handleDiscription" placeholder="描述该笔业务（比如出差到宁波的飞机票和住宿费）以及对发票上显示的商品或服务名称进行补充解释" auto-height required="required" maxlength="40"/>
+        </view>
+      </view>
+    </view>
+
+    <view class="message-container">
+      <text class="title">所属项目:</text>
+      <view class="value">
+        <view>
+          <textarea placeholder="描述该笔业务所属项目" auto-height required="required" bindinput="handleBelongTo" maxlength="18"/>
+        </view>
+      </view>
+    </view>
+
+  </view>
+
+  <view>
+    <view class="question">
+      <text>1.您属于购买方还是销售方？</text>
+      <view>
+        <radio-group class="radio-group" bindchange="chooseIdentity">
+          <label class="radio sale">
+            <radio value="购买方"/>购买方
+          </label>
+          <label class="radio sale">
+            <radio value="销售方"/>销售方
+          </label>
+        </radio-group>
+      </view>
+    </view>
+
+    <view class="question" wx:if="{{ message.identity == '购买方' }}">
+      <text>2.发票由谁支付</text>
+      <view>
+        <radio-group class="radio-group" bindchange="choosePay">
+          <label class="radio sale">
+            <radio value="公司"/>公司
+            <input wx:if="{{ message.pay === '公司' }}" type="text" value="{{ message.SellerName }}" bindinput="onInput" data-wpyoninput-a="SellerName"/>
+          </label>
+          <label class="radio sale">
+            <radio value="公司员工"/>公司员工
+            <input wx:if="{{ message.pay === '公司员工' }}" type="text" value="{{ message.personName }}" bindinput="handlePersonName" placeholder="请输入公司员工的姓名"/>
+          </label>
+          <label class="radio sale">
+            <radio value="其他第三方"/>其他第三方
+            <input wx:if="{{ message.pay === '其他第三方' }}" type="text" value="{{ message.otherName }}" bindinput="handleOtherName" placeholder="请输入其他第三方的名称"/>
+          </label>
+        </radio-group>
+
+      </view>
+    </view>
+
+    <view class="question" wx:if="{{ message.identity == '购买方' }}">
+      <text>3.该笔业务的产生原因？</text>
+      <view>
+        <radio-group class="radio-group" bindchange="chooseSource">
+          <label class="radio sale">
+            <radio value="员工福利"/>员工福利
+          </label>
+          <label class="radio sale">
+            <radio value="业务招待"/>业务招待
+          </label>
+          <label class="radio sale">
+            <radio value="员工差旅费用"/>员工差旅费用
+          </label>
+          <label class="radio sale">
+            <radio value="采购公司销售的商品"/>采购公司销售的商品
+          </label>
+          <label class="radio sale">
+            <radio value="日常开支"/>日常开支
+          </label>
+        </radio-group>
+      </view>
+    </view>
+  </view>
+
+  
+  <view class="err-message">
+    <text>
+      {{ errMessage }}
+    </text>
+  </view>
+
+  <button class="confirm" type="primary" name="button" bindtap="handleMakePdf">生成凭证</button>
+</view>

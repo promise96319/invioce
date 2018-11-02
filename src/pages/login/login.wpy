@@ -1,0 +1,51 @@
+<style lang="less">
+  .login-button {
+    margin-top: 400rpx;
+  }
+</style>
+
+<template>
+  <view class="container">
+    <button type="primary" wx:if="{{canIUse}}" open-type="getUserInfo" @getuserinfo="bindGetUserInfo" class="login-button">授权登录</button>
+    <view wx:else>请升级微信版本</view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+
+  export default class Login extends wepy.page {
+    config = {
+      navigationBarTitleText: '授权登录'
+    }
+
+    data = {
+      canIUse: wx.canIUse('button.open-type.getUserInfo')
+    }
+
+    onLoad () {
+      let _self = this
+      // 查看是否授权
+      wx.getSetting({
+        success (res){
+          if (res.authSetting['scope.userInfo']) {
+            // 已经授权，可以直接调用 getUserInfo 获取头像昵称
+            wx.getUserInfo({
+              success: function(res) {
+                _self.$parent.globalData.userInfo = res.userInfo
+                // console.log(res.userInfo);
+                wx.redirectTo({url: '../home/home'})
+              }
+            })
+          }
+        }
+      })
+    }
+
+    bindGetUserInfo (e) {
+      this.$parent.globalData.userInfo = e.detail.userInfo
+      // console.log(e.detail.userInfo);
+      wx.redirectTo({url: '../home/home'})
+    }
+  }
+</script>

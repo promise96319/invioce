@@ -1,0 +1,572 @@
+<style lang="less">
+view {
+    box-sizing: border;
+}
+
+.container {
+    margin: 40rpx 30rpx 160rpx;
+}
+
+.message-container {
+    box-sizing: border-box;
+    width: 100%;
+    height: auto;
+    font-size: 30rpx;
+    display: flex;
+}
+
+.message-container:last-child .title,
+.message-container:last-child .value {
+    border-bottom: 1px solid #ccc;
+}
+
+.title {
+    padding: 10rpx;
+    flex: 1;
+    border-top: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    text-align: right;
+}
+
+.value {
+    flex: 3;
+    border-top: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    display: flex;
+    align-items: center;
+}
+
+.value > view {
+  width: 100%;
+}
+
+.value > view > input,
+.value > view > radio-group {
+    padding-left: 10rpx;
+}
+
+.value input {
+    width: 100%;
+}
+
+.radio {
+    font-size: 22rpx;
+    margin-right: 4rpx;
+}
+
+.things-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.things-detail {
+    padding: 0!important !important;
+    width: 100%;
+    display: flex;
+}
+
+.things-detail:last-child .things-name,
+.things-detail:last-child .things-value {
+    border-bottom: none;
+}
+
+.things-name {
+    flex: 1;
+    padding: none;
+    display: flex;
+    justify-content: flex-end;
+    padding-right: 14rpx;
+    padding-left: 10rpx;
+    text-align: right;
+    align-items: center;
+    border-right: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+}
+
+.things-value {
+    flex: 2;
+    display: flex;
+    padding-left: 14rpx;
+    align-items: center;
+    border-bottom: 1px solid #ccc;
+}
+
+.value textarea {
+    width: 100%;
+    min-height: 160rpx;
+}
+
+.discription {
+    min-height: 160rpx;
+}
+
+.discription .title,
+.discription .value {
+    align-items: flex-start;
+}
+
+.question {
+    width: 100%;
+    margin-top: 80rpx;
+}
+
+.sale {
+    font-size: 32rpx;
+    line-height: 40rpx;
+    margin: 16rpx 60rpx;
+    display: block;
+}
+
+.sale input {
+    outline: none;
+    border: 1px solid #ccc;
+    border-radius: 10rpx;
+}
+
+.err-message {
+    color: red;
+    height: 36rpx;
+    line-height: 20rpx;
+}
+
+.confirm {
+    margin-top: 40rpx;
+}
+
+</style>
+
+<template>
+<view class="container">
+  <view class="message-detail">
+    <view class="message-container">
+      <text class="title">发票类型:</text>
+      <view class="value">
+        <view>
+          <radio-group class="radio-group" @change="radioChange">
+            <label class="radio" wx:for="{{ invoiceType }}" wx:key="idx">
+                <radio value="{{ item.value }}" checked="{{ message.InvoiceType === item.value }}"/>{{item.value}}
+              </label>
+          </radio-group>
+        </view>
+      </view>
+    </view>
+
+    <view class="message-container">
+      <text class="title">购买方:</text>
+      <view class="value">
+        <view>
+          <input type="text" placeholder="购买方" value="{{ message.PurchaserName }}" @input="onInput(PurchaserName)" />
+        </view>
+      </view>
+    </view>
+
+    <view class="message-container">
+      <text class="title">销售方:</text>
+      <view class="value">
+        <view>
+          <input type="text" placeholder="销售方" value="{{ message.SellerName }}" @input="onInput(SellerName)" />
+        </view>
+      </view>
+    </view>
+
+    <view class="message-container" wx:for="{{ message.CommodityName.length }}" wx:key="index">
+      <text class="title">支付信息{{ index + 1 }}:</text>
+      <view class="value things-container">
+        <view class="things-detail">
+          <text class="things-name">货物或应税劳务、服务名称:</text>
+          <view class="things-value">
+            <input type="text" placeholder="名称" value="{{ message.CommodityName[index].word  }}" @input="onInputDetail(CommodityName, {{ index }})" />
+          </view>
+        </view>
+
+        <view class="things-detail">
+          <text class="things-name">金额:</text>
+          <view class="things-value">
+            <input type="digit" placeholder="金额" value="{{ message.CommodityAmount[index].word  }}" @input="onInputDetail(CommodityAmount, {{ index }})" />
+          </view>
+        </view>
+
+        <view class="things-detail">
+          <text class="things-name">税额:</text>
+          <view class="things-value">
+            <input type="digit" placeholder="税额" value="{{ message.CommodityTax[index].word  }}" @input="onInputDetail(CommodityTax, {{ index }})" />
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="message-container">
+      <text class="title">价税合计:</text>
+      <view class="value">
+        <view>
+          <input type="text" placeholder="价税合计" value="{{ calTotalMoney }}" @input="onInput(AmountInFiguers)" disabled/>
+        </view>
+      </view>
+    </view>
+
+    <view class="message-container">
+      <text class="title">开票日期:</text>
+      <view class="value">
+        <view>
+          <input type="text" placeholder="开票日期" value="{{ message.InvoiceDate }}" @input="onInput(InvoiceDate)" />
+        </view>
+      </view>
+    </view>
+
+    <view class="message-container">
+      <text class="title">发票号码:</text>
+      <view class="value">
+        <view>
+          <input type="text" placeholder="发票号码" value="{{ message.InvoiceNum }}" @input="onInput(AmountInFiguers)" />
+        </view>
+      </view>
+    </view>
+
+    <view class="message-container discription">
+      <text class="title">业务描述:
+        <text>(必填)</text></text>
+      <view class="value">
+        <view>
+          <textarea @input="handleDiscription" placeholder="描述该笔业务（比如出差到宁波的飞机票和住宿费）以及对发票上显示的商品或服务名称进行补充解释" auto-height required maxlength="40"></textarea>
+        </view>
+      </view>
+    </view>
+
+    <view class="message-container">
+      <text class="title">所属项目:</text>
+      <view class="value">
+        <view>
+          <textarea placeholder="描述该笔业务所属项目" auto-height required @input="handleBelongTo" maxlength="18"></textarea>
+        </view>
+      </view>
+    </view>
+
+  </view>
+
+  <view>
+    <view class="question">
+      <text>1.您属于购买方还是销售方？</text>
+      <view>
+        <radio-group class="radio-group" @change="chooseIdentity">
+          <label class="radio sale">
+            <radio value="购买方"/>购买方
+          </label>
+          <label class="radio sale">
+            <radio value="销售方"/>销售方
+          </label>
+        </radio-group>
+      </view>
+    </view>
+
+    <view class="question" wx:if="{{ message.identity == '购买方' }}">
+      <text>2.发票由谁支付</text>
+      <view>
+        <radio-group class="radio-group" @change="choosePay">
+          <label class="radio sale">
+            <radio value="公司"/>公司
+            <input wx:if="{{ message.pay === '公司' }}" type="text" value="{{ message.SellerName }}" @input="onInput(SellerName)"/>
+          </label>
+          <label class="radio sale">
+            <radio value="公司员工"/>公司员工
+            <input wx:if="{{ message.pay === '公司员工' }}" type="text" value="{{ message.personName }}" @input="handlePersonName" placeholder="请输入公司员工的姓名"/>
+          </label>
+          <label class="radio sale">
+            <radio value="其他第三方"/>其他第三方
+            <input wx:if="{{ message.pay === '其他第三方' }}" type="text" value="{{ message.otherName }}" @input="handleOtherName" placeholder="请输入其他第三方的名称"/>
+          </label>
+        </radio-group>
+
+      </view>
+    </view>
+
+    <view class="question" wx:if="{{ message.identity == '购买方' }}">
+      <text>3.该笔业务的产生原因？</text>
+      <view>
+        <radio-group class="radio-group" @change="chooseSource">
+          <label class="radio sale">
+            <radio value="员工福利"/>员工福利
+          </label>
+          <label class="radio sale">
+            <radio value="业务招待"/>业务招待
+          </label>
+          <label class="radio sale">
+            <radio value="员工差旅费用"/>员工差旅费用
+          </label>
+          <label class="radio sale">
+            <radio value="采购公司销售的商品"/>采购公司销售的商品
+          </label>
+          <label class="radio sale">
+            <radio value="日常开支"/>日常开支
+          </label>
+        </radio-group>
+      </view>
+    </view>
+  </view>
+
+  
+  <view class="err-message">
+    <text>
+      {{ errMessage }}
+    </text>
+  </view>
+
+  <button class="confirm" type="primary" name="button" @tap="handleMakePdf">生成凭证</button>
+</view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import util from '../../utils/util'
+
+export default class Message extends wepy.page {
+  config = {
+    navigationBarTitleText: '确认发票信息'
+  }
+
+  data = {
+    message: {},
+    invoiceType: [{
+        value: '其他发票'
+      },
+      {
+        value: '专用发票'
+      },
+      {
+        value: '普通发票'
+      },
+    ],
+    errMessage: ''
+  }
+
+  computed = {
+    calTotalMoney() {
+      if (this.message && this.message.CommodityAmount) {
+        let total = 0
+        this.message.CommodityAmount.forEach((item) => {
+          total += Number(item.word)
+        })
+
+        this.message.CommodityTax.forEach((item) => {
+          total += Number(item.word)
+        })
+        this.message.AmountInFiguers = total.toFixed(2)
+        return total.toFixed(2)
+      }
+    }
+  }
+
+  methods = {
+    onInput(name, e) {
+      this.data.message[name] = e.detail.value
+    },
+    radioChange(e) {
+      this.message.InvoiceType = e.detail.value
+    },
+    onInputDetail(type, index, e) {
+      this.message[type][index].word = e.detail.value
+    },
+    chooseIdentity(e) {
+      this.message.identity = e.detail.value
+    },
+    chooseSource(e) {
+      this.message.source = e.detail.value
+    },
+    choosePay(e) {
+      this.message.pay = e.detail.value
+    },
+    handleDiscription(e) {
+      this.message.discription = e.detail.value
+    },
+    handleBelongTo(e) {
+      this.message.belongProject = e.detail.value
+    },
+    handlePersonName(e) {
+      this.message.otherName = ''
+      this.message.personName = e.detail.value
+    },
+    handleOtherName(e) {
+      this.message.personName = ''
+      this.message.otherName = e.detail.value
+    },
+    handleMakePdf() {
+      if (!this.message.PurchaserName) {
+        return this.errMessage = '请填写购买者的名称'
+      }
+      if (!this.message.SellerName) {
+        return this.errMessage = '请填写销售者的名称'
+      }
+      if (!this.message.InvoiceDate) {
+        return this.errMessage = '请填写开票日期'
+      }
+      if (!this.message.InvoiceNum) {
+        return this.errMessage = '请填写发票号码'
+      }
+      if (!this.message.discription) {
+        return this.errMessage = '请填写业务描述'
+      }
+      if (!this.message.identity) {
+        return this.errMessage = '请选择您是属于购买方还是销售方'
+      }
+      if (this.message.identity === '购买方') {
+        if (!this.message.pay) {
+          return this.errMessage = '请选择发票由谁支付'
+        } else {
+          if (this.message.pay === '公司员工' && !this.message.personName) {
+            return this.errMessage = '请填写公司员工的名称'
+          }
+          if (this.message.pay === '其他第三方' && !this.message.otherName) {
+            return this.errMessage = '请填写其他第三方的名称'
+          }
+        }
+
+        if (!this.message.source) {
+          return this.errMessage = '请选择该笔业务产生的原因'
+        }
+      }
+
+      // console.log(this.message);
+      if (this.message.identity === '销售方') {
+        wx.navigateTo({
+          url: '../sale/sale?result=' + JSON.stringify(this.message)
+        })
+      }
+
+      if (this.message.identity === '购买方') {
+        if (this.message.source === '员工福利' || this.message.source === '业务招待') {
+          wx.navigateTo({
+            url: '../notax/notax?result=' + JSON.stringify(this.message)
+          })
+        } else {
+          wx.navigateTo({
+            url: '../purchase/purchase?result=' + JSON.stringify(this.message)
+          })
+        }
+      }
+    }
+  }
+
+  onLoad(options) {
+
+    // console.log(JSON.parse(options.message));
+    this.message = JSON.parse(options.message)
+    // this.$apply()
+    // this.message = {
+    //   AmountInFiguers: "5.15",
+    //   AmountInWords: "伍图意角伍分",
+    //   CheckCode: "",
+    //   Checker: "TIST",
+    //   CommodityAmount: [{
+    //     word: "12345.89",
+    //     row: "1"
+    //   }, {
+    //     word: "12345.89",
+    //     row: "1"
+    //   }, {
+    //     word: "12345.89",
+    //     row: "1"
+    //   }, {
+    //     word: "12345.89",
+    //     row: "1"
+    //   }, {
+    //     word: "12345.89",
+    //     row: "1"
+    //   }],
+    //   CommodityName: [{
+    //     word: "货物可乐",
+    //     row: "1"
+    //   }, {
+    //     word: "货物可乐",
+    //     row: "1"
+    //   }, {
+    //     word: "货物可乐",
+    //     row: "1"
+    //   }, {
+    //     word: "货物可乐",
+    //     row: "1"
+    //   }, {
+    //     word: "货物可乐",
+    //     row: "1"
+    //   }],
+    //   CommodityNum: [{
+    //     word: "23.34",
+    //     row: "1"
+    //   }, {
+    //     word: "23.34",
+    //     row: "1"
+    //   }, {
+    //     word: "23.34",
+    //     row: "1"
+    //   }, {
+    //     word: "23.34",
+    //     row: "1"
+    //   }, {
+    //     word: "23.34",
+    //     row: "1"
+    //   }],
+    //   CommodityPrice: [{
+    //     word: "12345.34",
+    //     row: "1"
+    //   }, {
+    //     word: "12345.34",
+    //     row: "1"
+    //   }, {
+    //     word: "12345.34",
+    //     row: "1"
+    //   }, {
+    //     word: "12345.34",
+    //     row: "1"
+    //   }, {
+    //     word: "12345.34",
+    //     row: "1"
+    //   }],
+    //   CommodityTax: [{
+    //       word: "0.00",
+    //       row: "2"
+    //     },
+    //     {
+    //       word: "0.00",
+    //       row: "2"
+    //     },
+    //     {
+    //       word: "0.00",
+    //       row: "2"
+    //     },
+    //     {
+    //       word: "0.00",
+    //       row: "2"
+    //     },
+    //     {
+    //       word: "0.00",
+    //       row: "2"
+    //     }
+    //   ],
+    //   CommodityTaxRate: [],
+    //   CommodityType: [],
+    //   CommodityUnit: [],
+    //   InvoiceCode: "",
+    //   InvoiceDate: "2015年01月01日",
+    //   InvoiceNum: "00593803",
+    //   InvoiceType: "专用发票",
+    //   NoteDrawer: "TBST",
+    //   Password: "*/37647691>77>236<>00/-6>>/0-4>+0*2606+<+518+<18+<*4+7647691>77>236<>783>9/315753<1*110/+8+16*28<25192>345",
+    //   Payee: "TEST",
+    //   PurchaserAddress: ";北京市海淀区查石口路号天信息甲18就66888",
+    //   PurchaserBank: "测试京市海淀区查石口路甲18号就天信息;北",
+    //   PurchaserName: "航天信息份有限公司",
+    //   PurchaserRegisterNum: "2110101222666888",
+    //   Remarks: "测试打印样例",
+    //   SellerAddress: "TBST23456",
+    //   SellerBank: "",
+    //   SellerName: "航天信息股份有限公司",
+    //   SellerRegisterNum: "110101222666888",
+    //   TotalAmount: "5.00",
+    //   TotalTax: "0.15",
+    // }
+  }
+}
+</script>
