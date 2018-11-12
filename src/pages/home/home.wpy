@@ -1,4 +1,8 @@
 <style lang="less">
+  .container {
+    margin-bottom: 200rpx;
+  }
+
   .userinfo {
     margin: 80rpx;
     display: flex;
@@ -7,19 +11,81 @@
   }
 
   .userinfo-avatar {
-    width: 80rpx;
-    height: 80rpx;
+    width: 120rpx;
+    height: 120rpx;
     border-radius: 50%;
   }
 
   .userinfo-nickname {
     color: #aaa;
+    font-size: 50rpx;
   }
 
   .get-photo {
     margin: 80rpx;
   }
+
+  .company-msg .title button {
+    display: block;
+    margin-bottom: 20rpx;
+  }
+
+  .company-detail-container {
+    margin: 100rpx 0 160rpx;
+  }
+
+  .company-num {
+    height: 90rpx;
+    line-height: 20rpx;
+  }
+
+  .company-num text {
+    display: inline-block;
+  }
+
+  .company-detail {
+    display: flex;
+    width: 600rpx;
+  }
+
+  .company-title {
+    height: 60rpx;
+    line-height: 60rpx;
+    // text-align: right;
+  }
+
+  .company-value {
+    height: 60rpx;
+    line-height: 60rpx;
+  }
+
+  .company-value input {
+    width: 200rpx;
+  }
+
+  .delete-company {
+    display: inline-block;
+    float: right;
+  }
+
+  .choose-company {
+    margin-top: 60rpx;
+    text-align: center;
+  }
+
+  .is-tax {
+    display: block;
+  }
+
+  .choose-company .is-tax {
+    margin: 30rpx 0;
+  }
+
+  input {
+    border-bottom: 1px solid #aaa;
+  }
 </style>
+
 <template>
   <view class="container">
     <view class="userinfo" @tap="handleViewTap">
@@ -27,7 +93,103 @@
       <view class="userinfo-nickname">{{ userInfo.nickName }}</view>
     </view>
 
-    <view>
+    <view class="company-msg">
+        <view class="title">
+          <!-- <button open-type="getPhoneNumber" @getphonenumber="getPhoneNumber">授权获取手机号码 </button> -->
+          <button type="primary" size="mini" @tap="handleQuery">纳税人一户式查询入口  >></button>
+          <button type="primary" size="mini" @tap="handleAddCompany">
+            新增绑定公司
+          </button>
+        </view>
+
+      <view wx:for="{{ companies }}" wx:key="index" class="company-detail-container">
+          <view class="company-num">
+            <text>
+              公司信息{{ index + 1 }}:
+            </text>
+            <button class="delete-company" type="warn" size="mini" @tap="handleDeleteCompany({{ index }})">删除</button>
+          </view>
+          <view class="company-detail">
+            <view class="company-title">
+              <text>公司名称:</text>
+            </view>
+            <view class="company-value">
+              <input type="text" value="{{ item.companyName }}" placeholder="请输入公司名称" @input="handleInput({{ index }}, 'companyName')"/>
+            </view>
+          </view>
+
+          <view class="company-detail">
+            <view class="company-title">
+              <text>
+                纳税人识别号:
+              </text>
+            </view>
+            <view class="company-value">
+              <input type="text" value="{{ item.personNum }}" placeholder="请输入纳税人识别号" @input="handleInput({{ index }}, 'personNum')"/>
+            </view>
+          </view>
+
+          <view class="company-detail">
+            <view class="company-title">
+              <text>
+                联系人姓名:
+              </text>
+            </view>
+            <view class="company-value">
+              <input type="text" value="{{ item.personName }}" placeholder="请输入联系人姓名" @input="handleInput({{ index }}, 'personName')"/>
+            </view>
+          </view>
+
+          <view class="company-detail">
+            <view class="company-title">
+              <text>
+                联系人手机号:
+              </text>
+            </view>
+            <view class="company-value">
+              <input type="number" value="{{ item.personTelNum }}" placeholder="请输入联系人手机号码" @input="handleInput({{ index }}, 'personTelNum')"/>
+            </view>
+          </view>
+
+          <view class="company-detail">
+            <view class="company-title">
+              <text>
+                一般纳税人状态:
+              </text>
+            </view>
+            <view class="company-value">
+              <radio-group class="radio-group" @change="taxPersonChange({{ index }})">
+                <label class="radio">
+                  <radio value="是" checked="{{ item.isTaxPerson }}"/>是
+                </label>
+                <label class="radio">
+                  <radio value="否" checked="{{ !item.isTaxPerson }}"/>否
+                </label>
+              </radio-group>
+            </view>
+          </view>
+      </view>
+
+      <view wx:if="{{ companies.length !== 0 }}">
+        <button type="primary" @tap="handleSaveCompany">
+          确认公司信息正确
+        </button>
+      </view>
+    </view>
+
+    <view wx:if="{{ companies.length !== 0 && isShow }}" class="choose-company">
+      <view>
+          <view>
+            请选择公司：
+          </view>
+          <view>
+            <radio-group class="radio-group" @change="toggleSelectCompany">
+              <label class="radio is-tax" wx:for="{{ companies }}" wx:key="index">
+                <radio value="{{ index }}" checked="{{ index == currentIndex }}"/>{{ item.companyName }}
+              </label>
+            </radio-group>
+          </view>
+      </view>
       <button type="primary" class="get-photo" @tap="getPhoto">
         点击拍照或者选取照片
       </button>
@@ -45,13 +207,101 @@
 
     data = {
       userInfo: {
-        nickName: '加载中...'
+        nickName: '加载中...',
       },
+      time: 0,
+      timer: null,
+      companies: [
+        {
+          companyName: '有方教育0',
+          personName: 'embark',
+          isTaxPerson: true,
+          personNum: '1213',
+          personTelNum: '12345678910'
+        },
+        {
+          companyName: '有方教育1',
+          personName: 'embark',
+          isTaxPerson: true,
+          personNum: '1213',
+          personTelNum: '12345678910'
+        },
+      ],
+      isShow: false,
+      currentIndex: 0,
+    }
+
+    computed = {
     }
 
     methods = {
+
+      // 切换公司
+      toggleSelectCompany (e) {
+        this.currentIndex = e.detail.value
+        this.$apply()
+      },
+      // 保存公司信息
+      handleSaveCompany() {
+        let flag = true
+        this.companies.forEach((item) => {
+          for (let value of Object.values(item)) {
+            if (!value && value !== false) {
+              flag = false
+              return wx.showToast({
+                title: '保存信息失败，请确认已经完整填写公司信息',
+                icon: 'none',
+                duration: 2000,
+              })
+            }
+          }
+        })
+
+        if (flag) {
+          wx.showToast({
+            title: '确认成功',
+            icon: 'success',
+          })
+          this.isShow = true
+        } else {
+          this.isShow = false
+        }
+      },
+      // 删除公司信息
+      handleDeleteCompany(index) {
+        this.companies.splice(index, 1)
+      },
+      // 添加公司信息
+      handleAddCompany() {
+        this.isShow = false
+        this.companies.push({
+          companyName: '',
+          personName: '',
+          isTaxPerson: true,
+          personNum: '',
+          personTelNum: ''
+        })
+      },
+      // 是否为一般纳税人资格
+      taxPersonChange(index, e) {
+        this.companies[index].isTaxPerson = e.detail.value === '是' ? true : false
+      },
+      // 处理输入内容
+      handleInput (index, name, e) {
+        this.isShow = false
+        this.companies[index][name] = e.detail.value
+      },
+      // 跳转到查询页面
+      handleQuery () {
+        wx.navigateTo({
+          url: '../query/query'
+        })
+      },
       // 调用拍照或者选取照片接口
       getPhoto () {
+        this.timer = setInterval(() => {
+          this.time ++
+        }, 1000)
         let that = this
         wx.chooseImage({
           count: 1,
@@ -63,13 +313,20 @@
               encoding: 'base64', //编码格式
               success: res2 => { //成功的回调
                 // console.log('成功获取图片');
+                // wx.hideToast()
+                // wx.showToast({
+                //   title: '成功获取图片...' + that.time,
+                //   icon: 'loading',
+                //   mask: true,
+                //   duration: 60000
+                // })
                 // console.log('data:image/png;base64,' + res.data)
                 that.handleIdentifyInvoice(res2.data)
               }
             })
           }
         })
-      }
+      },
     }
 
     // 获取access_token
@@ -85,7 +342,15 @@
         url: 'https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=UVVOjbGt1XpSR9cW6GCSh77t&client_secret=mwHCmi819kPcVlOn7r8XAbnerudcOGwB&',
         method: 'POST',
         success (res) {
+          // wx.hideToast()
+          // wx.showToast({
+          //   title: 'access_token...' + that.time,
+          //   icon: 'loading',
+          //   mask: true,
+          //   duration: 60000
+          // })
           // console.log('成功获取access_token');
+          // console.log(1, that.time);
           that.getInvoiceData(res.data.access_token, base64)
         },
         fail (err) {
@@ -96,6 +361,7 @@
 
     // 根据access_token 调用百度云发票识别接口
     getInvoiceData (access_token, base64) {
+      // console.log(2, this.time);
       // console.log('发送识别发票的请求');
       let that = this
       wx.request({
@@ -109,18 +375,66 @@
         },
         method: 'POST',
         success: (res) => {
+          // console.log(3, that.time);
+          // wx.hideToast()
+          // wx.showToast({
+          //   title: '完毕...' + that.time,
+          //   icon: 'loading',
+          //   mask: true,
+          //   duration: 60000
+          // })
+          // clearInterval(that.timer)
+          // console.log(4, that.time);
           if (res.data.words_result) {
             console.log(res.data.words_result);
             wx.hideToast()
-            wx.navigateTo({url: '../message/message?message=' + JSON.stringify(res.data.words_result)})
+            wx.navigateTo({url: '../message/message?message=' + JSON.stringify(res.data.words_result) + '&company=' + JSON.stringify(that.companies[that.currentIndex])})
           }
           else {
             wx.hideToast()
             wx.showToast({
               icon: 'none',
-              title: '识别失败，请重新上传照片',
-              duration: 2000
+              title: '识别失败，请自行录入信息或者重新上传照片',
+              duration: 2000,
             })
+            setTimeout(() => {
+              let message = {
+                AmountInFiguers: "",
+                AmountInWords: "",
+                CheckCode: "",
+                Checker: "",
+                CommodityAmount: [],
+                CommodityName: [
+                ],
+                CommodityNum: [],
+                CommodityPrice: [],
+                CommodityTax: [
+                ],
+                CommodityTaxRate: [],
+                CommodityType: [],
+                CommodityUnit: [],
+                InvoiceCode: "",
+                InvoiceDate: "",
+                InvoiceNum: "",
+                InvoiceType: "其他发票",
+                NoteDrawer: "",
+                Password: "",
+                Payee: "",
+                PurchaserAddress: "",
+                PurchaserBank: "",
+                PurchaserName: "",
+                PurchaserRegisterNum: "",
+                Remarks: "",
+                SellerAddress: "",
+                SellerBank: "",
+                SellerName: "",
+                SellerRegisterNum: "",
+                TotalAmount: "",
+                TotalTax: "",
+              }
+              wx.navigateTo({url: '../message/message?message=' + JSON.stringify(message) + '&company=' + JSON.stringify(that.companies[that.currentIndex])})
+            }, 2000)
+
           }
         },
         fail: (err) => {
@@ -130,12 +444,17 @@
             title: '识别失败，请重新上传照片',
             duration: 2000
           })
-          console.log(err);
+          console.log(err)
         }
       })
     }
 
-    onLoad() {
+    getPhoneNumber (e) {
+
+  	}
+
+    async onLoad() {
+      await wx.login()
       this.userInfo = this.$parent.globalData.userInfo
     }
   }

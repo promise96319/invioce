@@ -25,15 +25,31 @@ view {
   justify-content: flex-end;
   text-align: right;
 }
+.goods-detail {
+  padding: 10rpx;
+  flex: 1;
+  border-top: 1px solid #ccc;
+  border-left: 1px solid #ccc;
+  display: flex;
+  text-align: center;
+  justify-content: space-around;
+  flex-direction: column;
+  align-items: center;
+}
 .value {
   flex: 3;
   border-top: 1px solid #ccc;
   border-left: 1px solid #ccc;
   border-right: 1px solid #ccc;
   display: flex;
-  align-items: center;
+  align-items: stretch;
+  justify-content: space-around;
+  align-items: ceview;
 }
 .value > view {
+  width: 100%;
+}
+.value > picker {
   width: 100%;
 }
 .value > view > input,
@@ -43,9 +59,18 @@ view {
 .value input {
   width: 100%;
 }
+.form-radio {
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
 .radio {
   font-size: 22rpx;
   margin-right: 4rpx;
+}
+.is-tax {
+  font-size: 30rpx;
+  margin-right: 24rpx;
 }
 .things-container {
   width: 100%;

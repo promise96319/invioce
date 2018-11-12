@@ -1,6 +1,6 @@
 
 <view class="container">
-  <scroll-view class="img-container" scroll-x>
+  <scroll-view class="img-container" scroll-x scroll-y>
     <view class="real-img">
       <image src="{{ tempFilePath }}"/>
     </view>

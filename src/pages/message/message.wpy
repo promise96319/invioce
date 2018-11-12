@@ -31,16 +31,34 @@ view {
     text-align: right;
 }
 
+.goods-detail {
+  padding: 10rpx;
+  flex: 1;
+  border-top: 1px solid #ccc;
+  border-left: 1px solid #ccc;
+  display: flex;
+  text-align: center;
+  justify-content: space-around;
+  flex-direction: column;
+  align-items: center;
+}
+
 .value {
     flex: 3;
     border-top: 1px solid #ccc;
     border-left: 1px solid #ccc;
     border-right: 1px solid #ccc;
     display: flex;
-    align-items: center;
+    align-items: stretch;
+    justify-content: space-around;
+    align-items: ceview;
 }
 
 .value > view {
+  width: 100%;
+}
+
+.value > picker {
   width: 100%;
 }
 
@@ -53,9 +71,20 @@ view {
     width: 100%;
 }
 
+.form-radio {
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
 .radio {
     font-size: 22rpx;
     margin-right: 4rpx;
+}
+
+.is-tax {
+  font-size: 30rpx;
+  margin-right: 24rpx;
 }
 
 .things-container {
@@ -147,10 +176,32 @@ view {
       <text class="title">发票类型:</text>
       <view class="value">
         <view>
-          <radio-group class="radio-group" @change="radioChange">
-            <label class="radio" wx:for="{{ invoiceType }}" wx:key="idx">
-                <radio value="{{ item.value }}" checked="{{ message.InvoiceType === item.value }}"/>{{item.value}}
-              </label>
+          <radio-group class="radio-group form-radio" @change="radioChange">
+            <label class="radio">
+                <radio value="专用发票" checked="{{ message.InvoiceType == '专用发票' }}"/>专用发票
+            </label>
+            <label class="radio">
+                <radio value="普通发票" checked="{{ judgeInvoiceType }}"/>普通发票
+            </label>
+            <label class="radio">
+                <radio value="其他发票" checked="{{ judgeOtherInvoiceType }}"/>其他发票
+            </label>
+          </radio-group>
+        </view>
+      </view>
+    </view>
+
+    <view class="message-container">
+      <text class="title">一般纳税人状态:</text>
+      <view class="value">
+        <view>
+          <radio-group class="radio-group form-radio" @change="taxPersonChange">
+            <label class="radio is-tax">
+              <radio value="是" checked="{{ isTaxPerson }}"/>是
+            </label>
+            <label class="radio is-tax">
+              <radio value="否" checked="{{ !isTaxPerson }}"/>否
+            </label>
           </radio-group>
         </view>
       </view>
@@ -175,7 +226,11 @@ view {
     </view>
 
     <view class="message-container" wx:for="{{ message.CommodityName.length }}" wx:key="index">
-      <text class="title">支付信息{{ index + 1 }}:</text>
+      <view class="goods-detail">
+        <text>支付信息{{ index + 1 }}:</text>
+        <button size="mini" type="default" data-index="{{index}}" @tap="handleAddDetail()">增加</button>
+        <button size="mini" type="default" data-index="{{index}}" @tap="handleDeleteDetail()" wx:if="{{ message.CommodityName.length > 1 }}">删除</button>
+      </view>
       <view class="value things-container">
         <view class="things-detail">
           <text class="things-name">货物或应税劳务、服务名称:</text>
@@ -187,14 +242,14 @@ view {
         <view class="things-detail">
           <text class="things-name">金额:</text>
           <view class="things-value">
-            <input type="digit" placeholder="金额" value="{{ message.CommodityAmount[index].word  }}" @input="onInputDetail(CommodityAmount, {{ index }})" />
+            <input type="text" placeholder="金额" value="{{ message.CommodityAmount[index].word  }}" @input="onInputDetail(CommodityAmount, {{ index }})" />
           </view>
         </view>
 
         <view class="things-detail">
           <text class="things-name">税额:</text>
           <view class="things-value">
-            <input type="digit" placeholder="税额" value="{{ message.CommodityTax[index].word  }}" @input="onInputDetail(CommodityTax, {{ index }})" />
+            <input type="text" placeholder="税额" value="{{ message.CommodityTax[index].word  }}" @input="onInputDetail(CommodityTax, {{ index }})" />
           </view>
         </view>
       </view>
@@ -213,7 +268,12 @@ view {
       <text class="title">开票日期:</text>
       <view class="value">
         <view>
-          <input type="text" placeholder="开票日期" value="{{ message.InvoiceDate }}" @input="onInput(InvoiceDate)" />
+          <!-- <input type="text" placeholder="开票日期" value="{{ message.InvoiceDate }}" @input="onInput(InvoiceDate)" /> -->
+          <picker mode="date" value="{{ message.InvoiceDate || 2000-01-01 }}" start="2000-01-01" end="2050-01-01" bindchange="bindDateChange">
+            <view class="picker">
+            选择时间：{{ chooseDate }}
+            </view>
+          </picker>
         </view>
       </view>
     </view>
@@ -222,7 +282,7 @@ view {
       <text class="title">发票号码:</text>
       <view class="value">
         <view>
-          <input type="text" placeholder="发票号码" value="{{ message.InvoiceNum }}" @input="onInput(AmountInFiguers)" />
+          <input type="text" placeholder="发票号码" value="{{ message.InvoiceNum }}" @input="onInput(InvoiceNum)" />
         </view>
       </view>
     </view>
@@ -254,10 +314,10 @@ view {
       <view>
         <radio-group class="radio-group" @change="chooseIdentity">
           <label class="radio sale">
-            <radio value="购买方"/>购买方
+            <radio value="购买方" checked="{{ message.identity === '购买方' }}"/>购买方
           </label>
           <label class="radio sale">
-            <radio value="销售方"/>销售方
+            <radio value="销售方" checked="{{ message.identity === '销售方' }}"/>销售方
           </label>
         </radio-group>
       </view>
@@ -269,7 +329,7 @@ view {
         <radio-group class="radio-group" @change="choosePay">
           <label class="radio sale">
             <radio value="公司"/>公司
-            <input wx:if="{{ message.pay === '公司' }}" type="text" value="{{ message.SellerName }}" @input="onInput(SellerName)"/>
+            <!-- <input wx:if="{{ message.pay === '公司' }}" type="text" value="{{ message.SellerName }}" @input="onInput(SellerName)"/> -->
           </label>
           <label class="radio sale">
             <radio value="公司员工"/>公司员工
@@ -289,19 +349,47 @@ view {
       <view>
         <radio-group class="radio-group" @change="chooseSource">
           <label class="radio sale">
-            <radio value="员工福利"/>员工福利
+            <radio value="员工福利" checked="{{ message.source === '员工福利' }}"/>员工福利
           </label>
+
           <label class="radio sale">
-            <radio value="业务招待"/>业务招待
+            <radio value="业务招待" checked="{{ message.source === '业务招待' }}"/>业务招待
           </label>
+
           <label class="radio sale">
-            <radio value="员工差旅费用"/>员工差旅费用
+            <radio value="员工差旅" checked="{{ message.source === '员工差旅' }}"/>员工差旅
           </label>
+
           <label class="radio sale">
-            <radio value="采购公司销售的商品"/>采购公司销售的商品
+            <radio value="购入公司经营的商品"/>购入公司经营的商品
           </label>
+
           <label class="radio sale">
-            <radio value="日常开支"/>日常开支
+            <radio value="售出公司经营的商品"/>售出公司经营的商品
+          </label>
+
+          <label class="radio sale">
+            <radio value="购买样品"/>购买样品
+          </label>
+
+          <label class="radio sale">
+            <radio value="办公司租金"/>办公司租金
+          </label>
+
+          <label class="radio sale">
+            <radio value="员工租赁房屋的租金"/>员工租赁房屋的租金
+          </label>
+
+          <label class="radio sale">
+            <radio value="公司成立前的设立费用"/>公司成立前的设立费用
+          </label>
+
+          <label class="radio sale">
+            <radio value="办公司保洁及维修保养"/>办公司保洁及维修保养
+          </label>
+
+          <label class="radio sale">
+            <radio value="其他" checked="{{ message.source === '其他' }}"/>其他
           </label>
         </radio-group>
       </view>
@@ -330,20 +418,12 @@ export default class Message extends wepy.page {
 
   data = {
     message: {},
-    invoiceType: [{
-        value: '其他发票'
-      },
-      {
-        value: '专用发票'
-      },
-      {
-        value: '普通发票'
-      },
-    ],
-    errMessage: ''
+    company: {},
+    isTaxPerson: true,
+    errMessage: '',
   }
-
   computed = {
+    // 计算总的金额
     calTotalMoney() {
       if (this.message && this.message.CommodityAmount) {
         let total = 0
@@ -357,18 +437,55 @@ export default class Message extends wepy.page {
         this.message.AmountInFiguers = total.toFixed(2)
         return total.toFixed(2)
       }
+    },
+    // 判断是否为普通发票
+    judgeInvoiceType() {
+      if (this.message.InvoiceType === '普通发票' || this.message.InvoiceType === '电子普通发票' || this.message.InvoiceType === '\b普通发票') {
+        return true
+      }
+      return false
+    },
+    judgeOtherInvoiceType() {
+      if (this.message.InvoiceType !== '专用发票' && this.message.Invoicetype !== '普通发票' && this.message.InvoiceType !== '电子普通发票' && this.message.InvoiceType !== '\b普通发票') {
+        return true
+      }
+      return false
+    },
+    chooseDate() {
+      if (this.message.InvoiceDate) {
+        return this.message.InvoiceDate.replace(/年|月/g, '-').replace(/日/, '')
+      } else {
+        this.message.InvoiceDate = '2000-01-01'
+        return '2000-01-01'
+      }
     }
   }
 
   methods = {
+    bindDateChange(e) {
+      this.message.InvoiceDate = e.detail.value
+    },
     onInput(name, e) {
       this.data.message[name] = e.detail.value
     },
     radioChange(e) {
       this.message.InvoiceType = e.detail.value
     },
+    taxPersonChange(e) {
+      this.isTaxPerson = e.detail.value === '是' ? true : false
+    },
     onInputDetail(type, index, e) {
-      this.message[type][index].word = e.detail.value
+      let res = e.detail.value
+      if (type !== 'CommodityName') {
+        if (!res) {
+          this.message[type][index].word = 0
+        } else {
+          console.log(parseFloat(res) || 0);
+          this.message[type][index].word = parseFloat(res) || 0
+        }
+      } else {
+        this.message[type][index].word = res
+      }
     },
     chooseIdentity(e) {
       this.message.identity = e.detail.value
@@ -381,6 +498,29 @@ export default class Message extends wepy.page {
     },
     handleDiscription(e) {
       this.message.discription = e.detail.value
+      // 判断业务产生的原因
+        if (this.message.identity !== '购买方' || !this.message.discription) return
+
+        if (['团建', '节日礼品', '生日礼品', '聚餐', '员工病假慰问', '员工产假慰问'].some((item) => {
+          return this.message.discription.indexOf(item) !== -1
+        })) {
+           this.message.source = '员工福利'
+           return
+        }
+        if (['客户礼品', '为客户支付的差旅费用', '商务洽谈用餐'].some((item) => {
+          return this.message.discription.indexOf(item) !== -1
+        })) {
+           this.message.source = '业务招待'
+           return
+        }
+        if (['出差', '差旅', '商务旅行', '机票', '火车票', '公共交通', '租车', '大巴', '长途客车', '酒店', '餐饮', '停车费', '出租车费', '网约车费', '旅行保险',].some((item) => {
+          return this.message.discription.indexOf(item) !== -1
+        })) {
+           this.message.source = '员工差旅费用'
+           return
+        }
+
+        this.message.source = '其他'
     },
     handleBelongTo(e) {
       this.message.belongProject = e.detail.value
@@ -429,32 +569,48 @@ export default class Message extends wepy.page {
         }
       }
 
-      // console.log(this.message);
+      console.log(this.message);
       if (this.message.identity === '销售方') {
+        console.log('sale');
         wx.navigateTo({
           url: '../sale/sale?result=' + JSON.stringify(this.message)
         })
+        return
       }
 
       if (this.message.identity === '购买方') {
-        if (this.message.source === '员工福利' || this.message.source === '业务招待') {
+        if (!this.isTaxPerson || this.message.InvoiceType == '普通发票' || this.message.InvoiceType == '其他发票' || this.message.InvoiceType == '\b普通发票' || this.message.InvoiceType == '\b其他发票') {
+          console.log('notax');
           wx.navigateTo({
             url: '../notax/notax?result=' + JSON.stringify(this.message)
           })
+          return
+        }
+
+        if (this.message.source === '员工福利' || this.message.source === '业务招待') {
+          console.log('notax');
+          wx.navigateTo({
+            url: '../notax/notax?result=' + JSON.stringify(this.message)
+          })
+          return
         } else {
+          console.log('pur');
           wx.navigateTo({
             url: '../purchase/purchase?result=' + JSON.stringify(this.message)
           })
+          return
         }
       }
     }
   }
 
   onLoad(options) {
+    // console.log(options);
 
     // console.log(JSON.parse(options.message));
     this.message = JSON.parse(options.message)
-    // this.$apply()
+    this.company = JSON.parse(options.company)
+    this.$apply()
     // this.message = {
     //   AmountInFiguers: "5.15",
     //   AmountInWords: "伍图意角伍分",
@@ -476,7 +632,8 @@ export default class Message extends wepy.page {
     //     word: "12345.89",
     //     row: "1"
     //   }],
-    //   CommodityName: [{
+    //   CommodityName: [
+    //     {
     //     word: "货物可乐",
     //     row: "1"
     //   }, {
@@ -491,7 +648,8 @@ export default class Message extends wepy.page {
     //   }, {
     //     word: "货物可乐",
     //     row: "1"
-    //   }],
+    //   }
+    // ],
     //   CommodityNum: [{
     //     word: "23.34",
     //     row: "1"
@@ -549,7 +707,7 @@ export default class Message extends wepy.page {
     //   CommodityType: [],
     //   CommodityUnit: [],
     //   InvoiceCode: "",
-    //   InvoiceDate: "2015年01月01日",
+    //   InvoiceDate: "2017年09月01日",
     //   InvoiceNum: "00593803",
     //   InvoiceType: "专用发票",
     //   NoteDrawer: "TBST",
@@ -567,6 +725,57 @@ export default class Message extends wepy.page {
     //   TotalAmount: "5.00",
     //   TotalTax: "0.15",
     // }
+    //
+    // this.company = {
+    //   companyName: '航天信息份有限公司',
+    //   personName: 'embark',
+    //   isTaxPerson: false,
+    //   personNum: '1213',
+    //   personTelNum: '12345678910'
+    // }
+
+    this.isTaxPerson = this.company.isTaxPerson
+    if (this.company.companyName === this.message.PurchaserName) {
+      this.message.identity = '购买方'
+    } else if (this.company.companyName === this.message.SellerName) {
+      this.message.identity = '销售方'
+    }
+
+    if (this.message.CommodityName.length === 0) {
+      this.handleAddDetail(0)
+    }
+  }
+
+  handleAddDetail(e) {
+    let index = 0
+    if (e && e.currentTarget) {
+      index = e.currentTarget.dataset.index
+    }
+
+    if (this.message.CommodityName.length === 0) {
+      this.message.CommodityName.push({word: '', row: 1})
+      this.message.CommodityAmount.push({word: '', row: 1})
+      this.message.CommodityTax.push({word: '', row: 1})
+    } else {
+      let tempNameFront = this.message.CommodityName.slice(0, index + 1)
+      let tempNameBack = this.message.CommodityName.slice(index + 1)
+      this.message.CommodityName = [...tempNameFront, {word: '', row: index + 1}, ...tempNameBack]
+
+      let tempAmountFront = this.message.CommodityAmount.slice(0, index + 1)
+      let tempAmountBack = this.message.CommodityAmount.slice(index + 1)
+      this.message.CommodityAmount = [...tempAmountFront, {word: '', row: index + 1}, ...tempAmountBack]
+
+      let tempTaxFront = this.message.CommodityTax.slice(0, index + 1)
+      let tempTaxBack = this.message.CommodityTax.slice(index + 1)
+      this.message.CommodityTax = [...tempTaxFront, {word: '', row: index + 1}, ...tempTaxBack]
+    }
+  }
+
+  handleDeleteDetail(e) {
+    let index = e.currentTarget.dataset.index
+    this.message.CommodityName.splice(index, 1)
+    this.message.CommodityAmount.splice(index, 1)
+    this.message.CommodityTax.splice(index, 1)
   }
 }
 </script>

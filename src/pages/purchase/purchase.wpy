@@ -88,7 +88,9 @@ export default class Purchase extends wepy.page {
               wx.saveImageToPhotosAlbum({
                   filePath: res1.path,
                   success: function (res2) {
-                    console.log(res2)
+                    wx.navigateBack({
+                        delta: 1
+                    })
                   },
                   fail: function (err) {
                     console.log(err)
@@ -105,6 +107,11 @@ export default class Purchase extends wepy.page {
   }
 
    onLoad(options) {
+     wx.showToast({
+       title: '正在生成凭证',
+       icon: 'loading',
+       duration: 10000
+     })
     this.result = JSON.parse(options.result)
     // this.result = {
     //   "InvoiceNum": "32330739",
@@ -117,18 +124,18 @@ export default class Purchase extends wepy.page {
     //   "Checker": "",
     //   "TotalAmount": "18647.17",
     //   "CommodityAmount": [{
-    //     "word": "1847.17",
+    //     "word": "13847.17",
     //     "row": "1"
     //   }, {
-    //     "word": "18647.17",
+    //     "word": "12647.17",
     //     "row": "2"
     //   }],
     //   "InvoiceDate": "2018年08月19日",
     //   "CommodityTax": [{
-    //     "word": "1118.83",
+    //     "word": "11118.83",
     //     "row": "1"
     //   }, {
-    //     "word": "1738.83",
+    //     "word": "11738.83",
     //     "row": "2"
     //   }],
     //   "PurchaserName": "上海有略教育科技有限公司",
@@ -159,10 +166,10 @@ export default class Purchase extends wepy.page {
     //   "InvoiceType": "专用发票",
     //   "SellerRegisterNum": "911101087975834338",
     //   "CommodityName": [{
-    //     "word": "服务器",
+    //     "word": "发酵、提取设备",
     //     "row": "1"
     //   }, {
-    //     "word": "扫地机",
+    //     "word": "安全检查仪器",
     //     "row": "2"
     //   }],
     //   "CommodityType": [{
@@ -172,7 +179,7 @@ export default class Purchase extends wepy.page {
     //   "CheckCode": "0034580225619590949",
     //   "identity": "购买方",
     //   "pay": "公司",
-    //   "source": "业务招待",
+    //   "source": "其他",
     //   "personName": "张三啊",
     //   "discription": "我来自中国，我再djkdkj直播，我得过世界冠军，我也办过转,你要额你都能记得看暗号都会",
     //   "belongProject": "天地大同"
@@ -233,7 +240,10 @@ export default class Purchase extends wepy.page {
     ctx.translate(cal(730), cal(70))
     ctx.setFontSize(cal(13))
     ctx.setTextAlign('right')
-    ctx.fillText(year + ' 年 ' + month + ' 月 ' + day + ' 号      记字第 ' + Date.now().toString().substr(6) + Math.random().toFixed(4)*10000 + ' 号', cal(0), cal(22))
+    ctx.fillText(year + ' 年 ' + month + ' 月 ' + day + ' 号      记字第 ' + Date.now().toString().substr(6) + (Math.random()* 100).toString().split('.')[0] + ' 号', cal(0), cal(22))
+    ctx.setTextAlign('center')
+    ctx.setTextAlign('center')
+    ctx.setTextAlign('center')
 
     // 表格
     // 外框
@@ -278,7 +288,6 @@ export default class Purchase extends wepy.page {
 
     // 表头
     ctx.setFontSize(cal(15))
-    ctx.setTextAlign('center')
     ctx.fillText('摘要', cal(100), cal(24))
     ctx.fillText('借方金额', cal(522), cal(24))
     ctx.fillText('贷方金额', cal(646), cal(24))
@@ -291,14 +300,11 @@ export default class Purchase extends wepy.page {
     // 内容部分
     // 摘要内容
     ctx.translate(0, cal(36))
-    ctx.setTextAlign('left')
-    lineWrap(ctx, this.result.discription, cal(14), cal(16), cal(160), cal(20), cal(10))
+    lineWrap(ctx, this.result.discription, cal(14), cal(16), cal(160), cal(100), cal(10))
 
-    ctx.setTextAlign('center')
     // 物品、服务等
     for (let i = 0; i < this.result.CommodityName.length; i++) {
       let temp = util(this.result.CommodityName[i].word, this.result.source, this.result.CommodityAmount[i].word)
-      console.log(temp);
       ctx.fillText(temp.code, cal(265), cal(24) + (2 * i) * cal(36))
       if (ctx.measureText(temp.name).width >= 0.9 * cal(130)) {
         lineWrap(ctx, temp.name, cal(14), cal(14), cal(130), cal(395), cal(2) + (2 * i) * cal(36) )
@@ -317,7 +323,7 @@ export default class Purchase extends wepy.page {
     switch (this.result.pay) {
       case '公司':
           ctx.fillText('2202', cal(265), cal(24) + (this.result.CommodityName.length * 2) * cal(36))
-          ctx.fillText('应收账款', cal(395), cal(24) + (this.result.CommodityName.length * 2) * cal(36))
+          ctx.fillText('应付账款', cal(395), cal(24) + (this.result.CommodityName.length * 2) * cal(36))
           ctx.fillText(this.result.AmountInFiguers, cal(646), cal(24) + (this.result.CommodityName.length * 2) * cal(36))
           break
       case '公司员工':
@@ -397,6 +403,7 @@ export default class Purchase extends wepy.page {
           height: cal(120) + (8 + 2 * this.result.CommodityName.length) * cal(36),
           canvasId: 'canvasId',//canvasId和标签里面的id对应
           success: (res) => {
+              wx.hideToast()
               //将获取到的图片临时路径set到canvasSaveimg中
               that.tempFilePath = res.tempFilePath
               that.$apply()

@@ -10,7 +10,7 @@
 
 .canvas {
   width: 1500rpx;
-  height: 1500rpx;
+  height: 3000rpx;
   display: inline-block;
 }
 
@@ -42,7 +42,7 @@ image {
 
 <template>
 <view class="container">
-  <scroll-view class="img-container" scroll-x>
+  <scroll-view class="img-container" scroll-x scroll-y>
     <view class="real-img">
       <image src="{{ tempFilePath }}"></image>
     </view>
@@ -88,7 +88,9 @@ export default class Sale extends wepy.page {
               wx.saveImageToPhotosAlbum({
                   filePath: res1.path,
                   success: function (res2) {
-                    console.log(res2)
+                    wx.navigateBack({
+                        delta: 1
+                    })
                   },
                   fail: function (err) {
                     console.log(err)
@@ -105,6 +107,11 @@ export default class Sale extends wepy.page {
   }
 
    onLoad(options) {
+     wx.showToast({
+       title: '正在生成凭证',
+       icon: 'loading',
+       duration: 10000
+     })
     this.result = JSON.parse(options.result)
     // this.result = {
     //   "InvoiceNum": "32330739",
@@ -116,18 +123,54 @@ export default class Sale extends wepy.page {
     //   "SellerBank": "北京市海淀区中关村东路1号院2号楼101室62798988",
     //   "Checker": "",
     //   "TotalAmount": "18647.17",
-    //   "CommodityAmount": [{
+    //   "CommodityAmount": [
+    //     {
     //     "word": "18647.17",
     //     "row": "1"
-    //   }, {
+    //   },
+    //     {
+    //     "word": "18647.17",
+    //     "row": "1"
+    //   },
+    //     {
+    //     "word": "18647.17",
+    //     "row": "1"
+    //   },
+    //     {
+    //     "word": "18647.17",
+    //     "row": "1"
+    //   },
+    //     {
+    //     "word": "18647.17",
+    //     "row": "1"
+    //   },
+    //   {
     //     "word": "18647.17",
     //     "row": "2"
     //   }],
     //   "InvoiceDate": "2018年08月19日",
-    //   "CommodityTax": [{
+    //   "CommodityTax": [
+    //     {
     //     "word": "1118.83",
     //     "row": "1"
-    //   }, {
+    //   },
+    //     {
+    //     "word": "1118.83",
+    //     "row": "1"
+    //   },
+    //     {
+    //     "word": "1118.83",
+    //     "row": "1"
+    //   },
+    //     {
+    //     "word": "1118.83",
+    //     "row": "1"
+    //   },
+    //     {
+    //     "word": "1118.83",
+    //     "row": "1"
+    //   },
+    //    {
     //     "word": "1738.83",
     //     "row": "2"
     //   }],
@@ -158,10 +201,28 @@ export default class Sale extends wepy.page {
     //   "TotalTax": "1118.30",
     //   "InvoiceType": "专用发票",
     //   "SellerRegisterNum": "911101087975834338",
-    //   "CommodityName": [{
+    //   "CommodityName": [
+    //     {
     //     "word": "*餐饮服务*餐费",
     //     "row": "1"
-    //   }, {
+    //   },
+    //     {
+    //     "word": "*餐饮服务*餐费",
+    //     "row": "1"
+    //   },
+    //     {
+    //     "word": "*餐饮服务*餐费",
+    //     "row": "1"
+    //   },
+    //     {
+    //     "word": "*餐饮服务*餐费",
+    //     "row": "1"
+    //   },
+    //     {
+    //     "word": "*餐饮服务*餐费",
+    //     "row": "1"
+    //   },
+    //   {
     //     "word": "*ai教育",
     //     "row": "2"
     //   }],
@@ -222,7 +283,6 @@ export default class Sale extends wepy.page {
 
     // 标题
     ctx.setFontSize(cal(23))
-    ctx.setTextAlign('center')
     ctx.fillText('记账凭证', cal(375), cal(40))
 
     // 时间及编号
@@ -233,7 +293,10 @@ export default class Sale extends wepy.page {
     ctx.translate(cal(730), cal(70))
     ctx.setFontSize(cal(13))
     ctx.setTextAlign('right')
-    ctx.fillText(year + ' 年 ' + month + ' 月 ' + day + ' 号      记字第 ' + Date.now().toString().substr(6) + Math.random().toFixed(4)*10000 + ' 号', cal(0), cal(22))
+    ctx.fillText(year + ' 年 ' + month + ' 月 ' + day + ' 号      记字第 ' + Date.now().toString().substr(6) + (Math.random()* 100).toString().split('.')[0] + ' 号', cal(0), cal(22))
+    ctx.setTextAlign('center')
+    ctx.setTextAlign('center')
+    ctx.setTextAlign('center')
 
     // 表格
     // 外框
@@ -283,7 +346,6 @@ export default class Sale extends wepy.page {
     ctx.fillText('借方金额', cal(522), cal(24))
     ctx.fillText('贷方金额', cal(646), cal(24))
 
-    ctx.setTextAlign('center')
     ctx.setFontSize(cal(14))
     ctx.fillText('会计科目', cal(330), cal(15))
     ctx.fillText('科目代码', cal(265), cal(33))
@@ -292,17 +354,14 @@ export default class Sale extends wepy.page {
     // 内容部分
     // 摘要内容
     ctx.translate(0, cal(36))
-    ctx.setTextAlign('left')
-    lineWrap(ctx, this.result.discription, cal(14), cal(16), cal(160), cal(20), cal(10))
+    lineWrap(ctx, this.result.discription, cal(14), cal(16), cal(160), cal(100), cal(10))
 
     // 价税合计
-    ctx.setTextAlign('center')
     ctx.fillText('1122', cal(265), cal(24))
     ctx.fillText('应收账款', cal(395), cal(24))
     ctx.fillText(this.result.AmountInFiguers, cal(522), cal(24))
 
     // 物品、服务等
-    ctx.setTextAlign('center')
     for (let i = 0; i < this.result.CommodityName.length; i++) {
       ctx.fillText('5001', cal(265), cal(24) + (1 + 2 * i) * cal(36))
       ctx.fillText('主营业务收入', cal(395), cal(24) + (1 + 2 * i) * cal(36))
@@ -323,7 +382,6 @@ export default class Sale extends wepy.page {
     // 信息栏
     ctx.beginPath()
     // 边框
-    ctx.setTextAlign('center')
     ctx.translate(0, cal(36))
     let leftTitle = ['会计总管', '客户', '供应商', '项目']
     for (let i = 1; i <= 4; i++) {
@@ -375,6 +433,7 @@ export default class Sale extends wepy.page {
           height: cal(120) + (8 + 2 * this.result.CommodityName.length) * cal(36),
           canvasId: 'canvasId',//canvasId和标签里面的id对应
           success: (res) => {
+              wx.hideToast()
               //将获取到的图片临时路径set到canvasSaveimg中
               that.tempFilePath = res.tempFilePath
               that.$apply()

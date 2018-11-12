@@ -9,7 +9,7 @@
 		"postcss": false,
 		"minified": false,
 		"newFeature": true,
-		"uglifyFileName": true
+		"uglifyFileName": false
 	},
 	"compileType": "miniprogram",
 	"libVersion": "2.3.1",

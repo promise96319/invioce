@@ -1,3 +1,6 @@
+.container {
+  margin-bottom: 200rpx;
+}
 .userinfo {
   margin: 80rpx;
   display: flex;
@@ -5,13 +8,60 @@
   align-items: center;
 }
 .userinfo-avatar {
-  width: 80rpx;
-  height: 80rpx;
+  width: 120rpx;
+  height: 120rpx;
   border-radius: 50%;
 }
 .userinfo-nickname {
   color: #aaa;
+  font-size: 50rpx;
 }
 .get-photo {
   margin: 80rpx;
+}
+.company-msg .title button {
+  display: block;
+  margin-bottom: 20rpx;
+}
+.company-detail-container {
+  margin: 100rpx 0 160rpx;
+}
+.company-num {
+  height: 90rpx;
+  line-height: 20rpx;
+}
+.company-num text {
+  display: inline-block;
+}
+.company-detail {
+  display: flex;
+  width: 600rpx;
+}
+.company-title {
+  height: 60rpx;
+  line-height: 60rpx;
+}
+.company-value {
+  height: 60rpx;
+  line-height: 60rpx;
+}
+.company-value input {
+  width: 200rpx;
+}
+.delete-company {
+  display: inline-block;
+  float: right;
+}
+.choose-company {
+  margin-top: 60rpx;
+  text-align: center;
+}
+.is-tax {
+  display: block;
+}
+.choose-company .is-tax {
+  margin: 30rpx 0;
+}
+input {
+  border-bottom: 1px solid #aaa;
 }

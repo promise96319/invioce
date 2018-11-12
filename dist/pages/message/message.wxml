@@ -5,10 +5,32 @@
       <text class="title">发票类型:</text>
       <view class="value">
         <view>
-          <radio-group class="radio-group" bindchange="radioChange">
-            <label class="radio"  wx:for="{{ invoiceType }}" wx:key="idx">
-                <radio value="{{ item.value }}" checked="{{ message.InvoiceType === item.value }}"/>{{item.value}}
-              </label>
+          <radio-group class="radio-group form-radio" bindchange="radioChange">
+            <label class="radio">
+                <radio value="专用发票" checked="{{ message.InvoiceType == '专用发票' }}"/>专用发票
+            </label>
+            <label class="radio">
+                <radio value="普通发票" checked="{{ judgeInvoiceType }}"/>普通发票
+            </label>
+            <label class="radio">
+                <radio value="其他发票" checked="{{ judgeOtherInvoiceType }}"/>其他发票
+            </label>
+          </radio-group>
+        </view>
+      </view>
+    </view>
+
+    <view class="message-container">
+      <text class="title">一般纳税人状态:</text>
+      <view class="value">
+        <view>
+          <radio-group class="radio-group form-radio" bindchange="taxPersonChange">
+            <label class="radio is-tax">
+              <radio value="是" checked="{{ isTaxPerson }}"/>是
+            </label>
+            <label class="radio is-tax">
+              <radio value="否" checked="{{ !isTaxPerson }}"/>否
+            </label>
           </radio-group>
         </view>
       </view>
@@ -33,7 +55,11 @@
     </view>
 
     <view class="message-container"  wx:for="{{ message.CommodityName.length }}" wx:key="index">
-      <text class="title">支付信息{{ index + 1 }}:</text>
+      <view class="goods-detail">
+        <text>支付信息{{ index + 1 }}:</text>
+        <button size="mini" type="default" data-index="{{index}}" bindtap="handleAddDetail" data-wpyhandleadddetail-a="">增加</button>
+        <button size="mini" type="default" data-index="{{index}}" bindtap="handleDeleteDetail" wx:if="{{ message.CommodityName.length > 1 }}" data-wpyhandledeletedetail-a="">删除</button>
+      </view>
       <view class="value things-container">
         <view class="things-detail">
           <text class="things-name">货物或应税劳务、服务名称:</text>
@@ -45,14 +71,14 @@
         <view class="things-detail">
           <text class="things-name">金额:</text>
           <view class="things-value">
-            <input type="digit" placeholder="金额" value="{{ message.CommodityAmount[index].word  }}" bindinput="onInputDetail" data-wpyoninputdetail-a="CommodityAmount" data-wpyoninputdetail-b="{{ index }}"/>
+            <input type="text" placeholder="金额" value="{{ message.CommodityAmount[index].word  }}" bindinput="onInputDetail" data-wpyoninputdetail-a="CommodityAmount" data-wpyoninputdetail-b="{{ index }}"/>
           </view>
         </view>
 
         <view class="things-detail">
           <text class="things-name">税额:</text>
           <view class="things-value">
-            <input type="digit" placeholder="税额" value="{{ message.CommodityTax[index].word  }}" bindinput="onInputDetail" data-wpyoninputdetail-a="CommodityTax" data-wpyoninputdetail-b="{{ index }}"/>
+            <input type="text" placeholder="税额" value="{{ message.CommodityTax[index].word  }}" bindinput="onInputDetail" data-wpyoninputdetail-a="CommodityTax" data-wpyoninputdetail-b="{{ index }}"/>
           </view>
         </view>
       </view>
@@ -71,7 +97,12 @@
       <text class="title">开票日期:</text>
       <view class="value">
         <view>
-          <input type="text" placeholder="开票日期" value="{{ message.InvoiceDate }}" bindinput="onInput" data-wpyoninput-a="InvoiceDate"/>
+          <!-- <input type="text" placeholder="开票日期" value="{{ message.InvoiceDate }}" bindinput="onInput(InvoiceDate)" /> -->
+          <picker mode="date" value="{{ message.InvoiceDate || 2000-01-01 }}" start="2000-01-01" end="2050-01-01" bindchange="bindDateChange">
+            <view class="picker">
+            选择时间：{{ chooseDate }}
+            </view>
+          </picker>
         </view>
       </view>
     </view>
@@ -80,7 +111,7 @@
       <text class="title">发票号码:</text>
       <view class="value">
         <view>
-          <input type="text" placeholder="发票号码" value="{{ message.InvoiceNum }}" bindinput="onInput" data-wpyoninput-a="AmountInFiguers"/>
+          <input type="text" placeholder="发票号码" value="{{ message.InvoiceNum }}" bindinput="onInput" data-wpyoninput-a="InvoiceNum"/>
         </view>
       </view>
     </view>
@@ -112,22 +143,22 @@
       <view>
         <radio-group class="radio-group" bindchange="chooseIdentity">
           <label class="radio sale">
-            <radio value="购买方"/>购买方
+            <radio value="购买方" checked="{{ message.identity === '购买方' }}"/>购买方
           </label>
           <label class="radio sale">
-            <radio value="销售方"/>销售方
+            <radio value="销售方" checked="{{ message.identity === '销售方' }}"/>销售方
           </label>
         </radio-group>
       </view>
     </view>
 
-    <view class="question" wx:if="{{ message.identity == '购买方' }}">
+    <view class="question"  wx:if="{{ message.identity == '购买方' }}">
       <text>2.发票由谁支付</text>
       <view>
         <radio-group class="radio-group" bindchange="choosePay">
           <label class="radio sale">
             <radio value="公司"/>公司
-            <input wx:if="{{ message.pay === '公司' }}" type="text" value="{{ message.SellerName }}" bindinput="onInput" data-wpyoninput-a="SellerName"/>
+            <!-- <input wx:if="{{ message.pay === '公司' }}" type="text" value="{{ message.SellerName }}" bindinput="onInput(SellerName)"/> -->
           </label>
           <label class="radio sale">
             <radio value="公司员工"/>公司员工
@@ -147,19 +178,47 @@
       <view>
         <radio-group class="radio-group" bindchange="chooseSource">
           <label class="radio sale">
-            <radio value="员工福利"/>员工福利
+            <radio value="员工福利" checked="{{ message.source === '员工福利' }}"/>员工福利
           </label>
+
           <label class="radio sale">
-            <radio value="业务招待"/>业务招待
+            <radio value="业务招待" checked="{{ message.source === '业务招待' }}"/>业务招待
           </label>
+
           <label class="radio sale">
-            <radio value="员工差旅费用"/>员工差旅费用
+            <radio value="员工差旅" checked="{{ message.source === '员工差旅' }}"/>员工差旅
           </label>
+
           <label class="radio sale">
-            <radio value="采购公司销售的商品"/>采购公司销售的商品
+            <radio value="购入公司经营的商品"/>购入公司经营的商品
           </label>
+
           <label class="radio sale">
-            <radio value="日常开支"/>日常开支
+            <radio value="售出公司经营的商品"/>售出公司经营的商品
+          </label>
+
+          <label class="radio sale">
+            <radio value="购买样品"/>购买样品
+          </label>
+
+          <label class="radio sale">
+            <radio value="办公司租金"/>办公司租金
+          </label>
+
+          <label class="radio sale">
+            <radio value="员工租赁房屋的租金"/>员工租赁房屋的租金
+          </label>
+
+          <label class="radio sale">
+            <radio value="公司成立前的设立费用"/>公司成立前的设立费用
+          </label>
+
+          <label class="radio sale">
+            <radio value="办公司保洁及维修保养"/>办公司保洁及维修保养
+          </label>
+
+          <label class="radio sale">
+            <radio value="其他" checked="{{ message.source === '其他' }}"/>其他
           </label>
         </radio-group>
       </view>
