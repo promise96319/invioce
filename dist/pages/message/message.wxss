@@ -44,12 +44,13 @@ view {
   display: flex;
   align-items: stretch;
   justify-content: space-around;
-  align-items: ceview;
+  align-items: center;
 }
 .value > view {
   width: 100%;
 }
 .value > picker {
+  height: 100%;
   width: 100%;
 }
 .value > view > input,
@@ -106,6 +107,8 @@ view {
   border-bottom: 1px solid #ccc;
 }
 .value textarea {
+  box-sizing: border-box;
+  padding: 10rpx;
   width: 100%;
   min-height: 160rpx;
 }

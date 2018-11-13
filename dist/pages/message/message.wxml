@@ -111,7 +111,7 @@
       <text class="title">发票号码:</text>
       <view class="value">
         <view>
-          <input type="text" placeholder="发票号码" value="{{ message.InvoiceNum }}" bindinput="onInput" data-wpyoninput-a="InvoiceNum"/>
+          <input type="number" placeholder="发票号码" value="{{ message.InvoiceNum }}" bindinput="onInput" data-wpyoninput-a="InvoiceNum"/>
         </view>
       </view>
     </view>

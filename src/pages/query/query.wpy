@@ -1,6 +1,6 @@
 <template>
   <!-- <web-view src="https://www.tax.sh.gov.cn/xbwz/wzfw/YhscxCtrl-yhsCx.pfv"></web-view> -->
-  <web-view src="https://www.tax.sh.gov.cn"></web-view>
+  <web-view src="https://www.tax.sh.gov.cn/xbwz/wzfw/yihushi.jsp"></web-view>
 </template>
 <script>
   import wepy from 'wepy'

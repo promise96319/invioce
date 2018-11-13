@@ -10,7 +10,7 @@
 
 .canvas {
   width: 1500rpx;
-  height: 1500rpx;
+  height: 3000rpx;
   display: inline-block;
 }
 
@@ -311,7 +311,7 @@ export default class Purchase extends wepy.page {
       } else {
         ctx.fillText(temp.name, cal(395), cal(24) + i * cal(36))
       }
-      ctx.fillText(this.result.CommodityAmount[i].word, cal(522), cal(24) + i * cal(36))
+      ctx.fillText(parseFloat(Number(this.result.CommodityAmount[i].word) + Number(this.result.CommodityTax[i].word) + '.').toFixed(2), cal(522), cal(24) + i * cal(36))
 
       // ctx.fillText('2221.01.06', cal(265), cal(24) + (1 + 2 * i) * cal(36))
       // ctx.fillText('待认证进项税', cal(395), cal(24) + (1 + 2 * i) * cal(36))
@@ -319,13 +319,13 @@ export default class Purchase extends wepy.page {
       // ctx.fillText(this.result.CommodityTax[i].word, cal(522), cal(24) + (1 + 2 * i) * cal(36))
     }
 
-    if (this.result && this.result.CommodityAmount) {
-      let total = 0
-      this.result.CommodityAmount.forEach((item) => {
-        total += Number(item.word)
-      })
-      this.result.AmountInFiguers = total.toFixed(2)
-    }
+    // if (this.result && this.result.CommodityAmount) {
+    //   let total = 0
+    //   this.result.CommodityAmount.forEach((item) => {
+    //     total += Number(item.word)
+    //   })
+    //   this.result.AmountInFiguers = total.toFixed(2)
+    // }
 
 
     // 价税合计

@@ -53,7 +53,7 @@
               success: function(res) {
                 _self.$parent.globalData.userInfo = res.userInfo
                 // console.log(res.userInfo);
-                wx.redirectTo({url: '../home/home'})
+                wx.redirectTo({url: '../company/companyInfo'})
               }
             })
           }
@@ -63,7 +63,7 @@
 
     bindGetUserInfo (e) {
       this.$parent.globalData.userInfo = e.detail.userInfo
-      wx.navigateTo({url: '../home/home'})
+      wx.navigateTo({url: '../company/companyInfo'})
     }
   }
 </script>

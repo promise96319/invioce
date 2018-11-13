@@ -365,12 +365,12 @@ export default class Sale extends wepy.page {
     for (let i = 0; i < this.result.CommodityName.length; i++) {
       ctx.fillText('5001', cal(265), cal(24) + (1 + 2 * i) * cal(36))
       ctx.fillText('主营业务收入', cal(395), cal(24) + (1 + 2 * i) * cal(36))
-      ctx.fillText(this.result.CommodityAmount[i].word, cal(646), cal(24) + (1 + 2 * i) * cal(36))
+      ctx.fillText(parseFloat(this.result.CommodityAmount[i].word + '.').toFixed(2), cal(646), cal(24) + (1 + 2 * i) * cal(36))
 
       ctx.fillText('2221.01.01', cal(265), cal(24) + (2 + 2 * i) * cal(36))
       lineWrap(ctx, '应交税费 - 增值税 - 销项税', cal(14), cal(14), cal(130), cal(395), cal(2) + (2 + 2 * i) * cal(36) )
       // ctx.fillText(lineWrap(), cal(395), cal(24) + 2 * cal(36))
-      ctx.fillText(this.result.CommodityTax[i].word, cal(646), cal(24) + (2 + 2 * i) * cal(36))
+      ctx.fillText(parseFloat(this.result.CommodityTax[i].word + '.').toFixed(2), cal(646), cal(24) + (2 + 2 * i) * cal(36))
     }
 
     // 合计

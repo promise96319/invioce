@@ -13,25 +13,25 @@ export default (targetName, source, money) => {
   switch (source) {
 
     case '员工福利':
-      return temp = {code: '5602.08', name: '员工福利费'}
+      return temp = {code: '5602.08', name: '管理费用-员工福利费'}
 
     case '业务招待':
-      return temp = {code: '5601.14', name: '业务招待费'}
+      return temp = {code: '5601.14', name: '销售费用-业务招待费'}
 
     case '购买样品':
-      return temp = {code: '5601.13', name: '样品费'}
+      return temp = {code: '5601.13', name: '销售费用-样品费'}
 
     case '办公司租金':
-      return temp = {code: '5602.09.01', name: '办公司租金'}
+      return temp = {code: '5602.09.01', name: '管理费用-办公室租金'}
 
     case '员工租赁房屋的租金':
-      return temp = {code: '5602.09.02', name: '公寓租金'}
+      return temp = {code: '5602.09.02', name: '管理费用-公寓租金'}
 
     case '公司成立前的设立费用':
-      return temp = {code: '5602.14', name: '开办费'}
+      return temp = {code: '5602.14', name: '管理费用-开办费'}
 
     case '办公司保洁及维修保养':
-      return temp = {code: '5602.30', name: '办公室维护费'}
+      return temp = {code: '5602.30', name: '管理费用-办公室维护费'}
 
     case '员工差旅':
     isHave = false
@@ -51,10 +51,10 @@ export default (targetName, source, money) => {
       if (isHave) break
     }
 
-    if (!isHave && (targetName.indexOf('服务') !== -1 || targetName.indexOf('费') !== -1)) {
+    if (!isHave) {
       temp = {
         code: '5602.18.14',
-        name: '差旅杂费'
+        name: '管理费用-差旅费-差旅杂费'
       }
     }
 
@@ -86,12 +86,12 @@ export default (targetName, source, money) => {
         if (targetName.indexOf('服务') !== -1 || targetName.indexOf('费') !== -1) {
           temp = {
             code: '5401.99',
-            name: '其他采购成本'
+            name: '主营业务成本-其他采购成本'
           }
         } else {
           temp = {
             code: '1405.01',
-            name: '库存商品'
+            name: '存货-库存商品'
           }
         }
       }
@@ -123,7 +123,7 @@ export default (targetName, source, money) => {
       if (!isHave) {
         temp = {
           code: '5601.99',
-          name: '其他销售费用'
+          name: '销售费用-其他销售费用'
         }
       }
 
@@ -167,10 +167,10 @@ export default (targetName, source, money) => {
       if (isHave) break
     }
 
-    if (!isHave && (targetName.indexOf('服务') !== -1 || targetName.indexOf('费') !== -1)) {
+    if (!isHave) {
       temp = {
         code: '5602.99',
-        name: '其他管理费用'
+        name: '管理费用-其他管理费用'
       }
     }
 

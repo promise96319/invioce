@@ -51,7 +51,7 @@ view {
     display: flex;
     align-items: stretch;
     justify-content: space-around;
-    align-items: ceview;
+    align-items: center;
 }
 
 .value > view {
@@ -59,6 +59,7 @@ view {
 }
 
 .value > picker {
+  height: 100%;
   width: 100%;
 }
 
@@ -126,6 +127,8 @@ view {
 }
 
 .value textarea {
+    box-sizing: border-box;
+    padding: 10rpx;
     width: 100%;
     min-height: 160rpx;
 }
@@ -282,7 +285,7 @@ view {
       <text class="title">发票号码:</text>
       <view class="value">
         <view>
-          <input type="text" placeholder="发票号码" value="{{ message.InvoiceNum }}" @input="onInput(InvoiceNum)" />
+          <input type="number" placeholder="发票号码" value="{{ message.InvoiceNum }}" @input="onInput(InvoiceNum)" />
         </view>
       </view>
     </view>
@@ -423,16 +426,16 @@ export default class Message extends wepy.page {
     errMessage: '',
   }
   computed = {
-    // 计算总的金额
+    // 计算总的金额（价税合计）
     calTotalMoney() {
       if (this.message && this.message.CommodityAmount) {
         let total = 0
         this.message.CommodityAmount.forEach((item) => {
-          total += Number(item.word)
+          total += (Number(item.word) || 0)
         })
 
         this.message.CommodityTax.forEach((item) => {
-          total += Number(item.word)
+          total += (Number(item.word) || 0)
         })
         this.message.AmountInFiguers = total.toFixed(2)
         return total.toFixed(2)
@@ -462,40 +465,55 @@ export default class Message extends wepy.page {
   }
 
   methods = {
+    // 开票日期
     bindDateChange(e) {
       this.message.InvoiceDate = e.detail.value
     },
     onInput(name, e) {
       this.data.message[name] = e.detail.value
     },
+    // 发票类型
     radioChange(e) {
       this.message.InvoiceType = e.detail.value
     },
+    // 一般纳税人状态
     taxPersonChange(e) {
       this.isTaxPerson = e.detail.value === '是' ? true : false
     },
+    // 商品信息
     onInputDetail(type, index, e) {
       let res = e.detail.value
       if (type !== 'CommodityName') {
         if (!res) {
-          this.message[type][index].word = 0
+          if (res === 0) {
+            this.message[type][index].word = res
+          } else {
+            this.message[type][index].word = ''
+          }
         } else {
-          console.log(parseFloat(res) || 0);
-          this.message[type][index].word = parseFloat(res) || 0
+            if (res[0] === '-' && res.length === 1) {
+              this.message[type][index].word = res
+            } else {
+              this.message[type][index].word = parseFloat(res) || 0
+            }
         }
       } else {
         this.message[type][index].word = res
       }
     },
+    // 购买者还是消费者
     chooseIdentity(e) {
       this.message.identity = e.detail.value
     },
+    // 业务产生原因
     chooseSource(e) {
       this.message.source = e.detail.value
     },
+    // 由谁支付
     choosePay(e) {
       this.message.pay = e.detail.value
     },
+    // 业务描述 == 默认业务产生原因
     handleDiscription(e) {
       this.message.discription = e.detail.value
       // 判断业务产生的原因
@@ -522,17 +540,21 @@ export default class Message extends wepy.page {
 
         this.message.source = '其他'
     },
+    // 发票由谁支付
     handleBelongTo(e) {
       this.message.belongProject = e.detail.value
     },
+    // 公司员工名称
     handlePersonName(e) {
       this.message.otherName = ''
       this.message.personName = e.detail.value
     },
+    // 第三方名称
     handleOtherName(e) {
       this.message.personName = ''
       this.message.otherName = e.detail.value
     },
+    // 生成凭证
     handleMakePdf() {
       if (!this.message.PurchaserName) {
         return this.errMessage = '请填写购买者的名称'
@@ -540,6 +562,21 @@ export default class Message extends wepy.page {
       if (!this.message.SellerName) {
         return this.errMessage = '请填写销售者的名称'
       }
+
+      for (let i = 0; i < this.message.CommodityName.length; i++) {
+        if (!this.message.CommodityName[i].word) {
+          return this.errMessage = '请填写支付信息' + (i + 1) + '的名称'
+        }
+
+        if ((!this.message.CommodityAmount[i].word && this.message.CommodityAmount[i].word !== 0) || this.message.CommodityAmount[i].word === '-') {
+          return this.errMessage = '请填写支付信息' + (i + 1) + '的金额'
+        }
+
+        if (!this.message.CommodityTax[i].word && this.message.CommodityTax[i].word !== 0 || this.message.CommodityTax[i].word === '-') {
+          return this.errMessage = '请填写支付信息' + (i + 1) + '的税额'
+        }
+      }
+
       if (!this.message.InvoiceDate) {
         return this.errMessage = '请填写开票日期'
       }
@@ -569,9 +606,7 @@ export default class Message extends wepy.page {
         }
       }
 
-      console.log(this.message);
       if (this.message.identity === '销售方') {
-        console.log('sale');
         wx.navigateTo({
           url: '../sale/sale?result=' + JSON.stringify(this.message)
         })
@@ -580,7 +615,6 @@ export default class Message extends wepy.page {
 
       if (this.message.identity === '购买方') {
         if (!this.isTaxPerson || this.message.InvoiceType == '普通发票' || this.message.InvoiceType == '其他发票' || this.message.InvoiceType == '\b普通发票' || this.message.InvoiceType == '\b其他发票') {
-          console.log('notax');
           wx.navigateTo({
             url: '../notax/notax?result=' + JSON.stringify(this.message)
           })
@@ -588,13 +622,11 @@ export default class Message extends wepy.page {
         }
 
         if (this.message.source === '员工福利' || this.message.source === '业务招待') {
-          console.log('notax');
           wx.navigateTo({
             url: '../notax/notax?result=' + JSON.stringify(this.message)
           })
           return
         } else {
-          console.log('pur');
           wx.navigateTo({
             url: '../purchase/purchase?result=' + JSON.stringify(this.message)
           })
@@ -605,9 +637,6 @@ export default class Message extends wepy.page {
   }
 
   onLoad(options) {
-    // console.log(options);
-
-    // console.log(JSON.parse(options.message));
     this.message = JSON.parse(options.message)
     this.company = JSON.parse(options.company)
     this.$apply()
@@ -746,6 +775,7 @@ export default class Message extends wepy.page {
     }
   }
 
+  // 增加商品信息
   handleAddDetail(e) {
     let index = 0
     if (e && e.currentTarget) {
@@ -771,6 +801,7 @@ export default class Message extends wepy.page {
     }
   }
 
+  // 删除商品信息
   handleDeleteDetail(e) {
     let index = e.currentTarget.dataset.index
     this.message.CommodityName.splice(index, 1)
