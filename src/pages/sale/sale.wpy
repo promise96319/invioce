@@ -5,37 +5,49 @@
 }
 
 .canvas-container {
-  width: 1500rpx;
+  width: 750rpx;
 }
 
 .canvas {
-  width: 1500rpx;
-  height: 3000rpx;
+  width: 750rpx;
+  height: 1500rpx;
   display: inline-block;
 }
 
 .img-container {
   width: 100%;
-  height: 1500rpx;
 }
 
 .real-img {
-  width: 1500rpx;
-  height: 1500rpx;
+  width: 750rpx;
 }
 
 image {
-  width: 1500rpx;
-  height: 1500rpx;
+  width: 750rpx;
 }
 
 .confirm-container {
-  display: flex;
-  margin: 60rpx 0 100rpx;
+  margin: 40rpx 0 100rpx;
 }
 
-.confirm-container button {
-  margin: 0 40rpx;
+.confirm-container button[plain] {
+  margin-bottom: 20rpx;
+  width: 600rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  border: 1rpx solid rgba(85,172,238,1);
+  border-radius: 8rpx;
+  background-color: #fff;
+  color: #55ACEE;
+  font-size: 36rpx;
+  font-family: PingFang-SC-Regular;
+  font-weight: 400;
+}
+
+.confirm-container .save-pic[plain] {
+  color: #fff;
+  background-color: #55ACEE;
+  border: none;
 }
 
 </style>
@@ -44,7 +56,7 @@ image {
 <view class="container">
   <scroll-view class="img-container" scroll-x scroll-y>
     <view class="real-img">
-      <image src="{{ tempFilePath }}"></image>
+      <image src="{{ tempFilePath }}" style="height: {{ imageHeight * 2 }}rpx;"></image>
     </view>
   </scroll-view>
   <view class="certificate">
@@ -52,8 +64,8 @@ image {
   </view>
 
   <view class="confirm-container">
-    <button type="primary" @tap="hanldeSavePic">确定</button>
-    <button type="primary" @tap="handleCancel">取消</button>
+    <button plain @tap="hanldeSavePic" class="save-pic">保存</button>
+    <button plain @tap="handleCancel">取消</button>
   </view>
 </view>
 </template>
@@ -74,7 +86,8 @@ export default class Sale extends wepy.page {
     width: 0,
     height: 0,
     result: {},
-    tempFilePath: ''
+    tempFilePath: '',
+    imageHeight: 0,
   }
 
   computed = {}
@@ -144,12 +157,36 @@ export default class Sale extends wepy.page {
     //     "word": "18647.17",
     //     "row": "1"
     //   },
+    //     {
+    //     "word": "18647.17",
+    //     "row": "1"
+    //   },
+    //     {
+    //     "word": "18647.17",
+    //     "row": "1"
+    //   },
+    //     {
+    //     "word": "18647.17",
+    //     "row": "1"
+    //   },
     //   {
     //     "word": "18647.17",
     //     "row": "2"
     //   }],
     //   "InvoiceDate": "2018年08月19日",
     //   "CommodityTax": [
+    //     {
+    //     "word": "1118.83",
+    //     "row": "1"
+    //   },
+    //     {
+    //     "word": "1118.83",
+    //     "row": "1"
+    //   },
+    //     {
+    //     "word": "1118.83",
+    //     "row": "1"
+    //   },
     //     {
     //     "word": "1118.83",
     //     "row": "1"
@@ -222,6 +259,18 @@ export default class Sale extends wepy.page {
     //     "word": "*餐饮服务*餐费",
     //     "row": "1"
     //   },
+    //     {
+    //     "word": "*餐饮服务*餐费",
+    //     "row": "1"
+    //   },
+    //     {
+    //     "word": "*餐饮服务*餐费",
+    //     "row": "1"
+    //   },
+    //     {
+    //     "word": "*餐饮服务*餐费",
+    //     "row": "1"
+    //   },
     //   {
     //     "word": "*ai教育",
     //     "row": "2"
@@ -245,6 +294,7 @@ export default class Sale extends wepy.page {
     wx.getSystemInfo({
       success(res) {
         that.width = res.windowWidth
+        that.$apply()
         // that.height = res.windowHeight
       }
     })
@@ -253,7 +303,7 @@ export default class Sale extends wepy.page {
 // 函数定义区域 ===================
     // 设置一个基准比例
     let cal = (px) => {
-      return  px / 375 * that.width
+      return  px / 750 * that.width
     }
 
     // canvas换行显示
@@ -262,7 +312,7 @@ export default class Sale extends wepy.page {
       let textArr = []
       let index = 0
       for (let i = 1; i < str.length; i++) {
-        if (ctx.measureText(str.substring(index, i)).width >= width) {
+        if (ctx.measureText(str.substring(index, i)).width >= width * 0.8) {
           textArr.push(str.substring(index, i))
           index = i
         }
@@ -426,11 +476,14 @@ export default class Sale extends wepy.page {
     ctx.fillText(this.result.PurchaserName, cal(228), cal(24) + cal(36))
 
     ctx.draw(true, () => {
+      that.imageHeight = cal(120) + (8 + 2 * this.result.CommodityName.length) * cal(36)
       wx.canvasToTempFilePath({
           x: 0,
           y: 0,
           width: cal(750),
           height: cal(120) + (8 + 2 * this.result.CommodityName.length) * cal(36),
+          fileType: 'jpg',
+          quality: 0.5,
           canvasId: 'canvasId',//canvasId和标签里面的id对应
           success: (res) => {
               wx.hideToast()

@@ -1,41 +1,59 @@
 <style lang="less">
   .container {
-    margin-bottom: 200rpx;
   }
 
   .userinfo {
-    margin: 80rpx;
     display: flex;
     flex-direction: column;
     align-items: center;
   }
 
   .userinfo-avatar {
-    width: 120rpx;
-    height: 120rpx;
+    margin-top: 200rpx;
+    width: 260rpx;
+    height: 260rpx;
     border-radius: 50%;
   }
 
   .userinfo-nickname {
-    color: #aaa;
+    margin-top: 30rpx;
+    font-size: 36rpx;
+    font-family: PingFang-SC-Regular;
+    font-weight: 400;
+    color: rgba(71,71,71,1);
   }
 
-  .get-photo {
-    margin: 80rpx;
+  .company-btn,
+  .tel-btn {
+    position: absolute;
+    width: 600rpx;
+    height: 80rpx;
+    line-height: 80rpx;
+    margin-top: 20rpx;
+    font-size: 36rpx;
+    font-family: PingFang-SC-Regular;
+    font-weight: 400;
   }
 
-  .choose-company {
-    margin-top: 60rpx;
-    text-align: center;
+  .company-btn {
+    bottom: 60rpx;
   }
 
-  .is-tax {
-    display: block;
+  .tel-btn {
+    bottom: 160rpx;
   }
 
-  .choose-company .is-tax {
-    margin: 30rpx 0;
+  .plain {
+    background-color: #fff;
+    color: #55ACEE;
+    border: 1px solid rgba(85,172,238,1);
   }
+
+  .selected {
+    background-color: #55ACEE;
+    color: #fff;
+  }
+
 </style>
 
 <template>
@@ -45,178 +63,40 @@
       <view class="userinfo-nickname">{{ userInfo.nickName }}</view>
     </view>
 
-    <view class="choose-company">
-      <view>
-          <view>
-            请选择公司：
-          </view>
-          <view>
-            <radio-group class="radio-group" @change="toggleSelectCompany">
-              <label class="radio is-tax" wx:for="{{ companies }}" wx:key="index">
-                <radio value="{{ index }}" checked="{{ index == currentIndex }}"/>{{ item.companyName }}
-              </label>
-            </radio-group>
-          </view>
-      </view>
-      <button type="primary" class="get-photo" @tap="getPhoto">
-        点击拍照或者选取照片
-      </button>
-    </view>
+    <button class="tel-btn plain" open-type="getPhoneNumber" @getphonenumber="getPhoneNumber" disabled>电话授权(暂无功能)</button>
+    <button class="company-btn selected" @tap="goToCompanyInfo">已绑定的公司</button>
   </view>
 </template>
 
 <script>
   import wepy from 'wepy'
 
-  export default class Home extends wepy.page {
+  export default class CompanyInfo extends wepy.page {
     config = {
-      navigationBarTitleText: '发票验证'
+      navigationBarTitleText: '主页'
     }
 
     data = {
       userInfo: {
         nickName: '加载中...',
       },
-      companies: [
-      ],
-      currentIndex: 0,
     }
 
     methods = {
-      // 切换公司
-      toggleSelectCompany (e) {
-        this.currentIndex = e.detail.value
-        this.$apply()
-      },
-      // 调用拍照或者选取照片接口
-      getPhoto () {
-        this.timer = setInterval(() => {
-          this.time ++
-        }, 1000)
-        let that = this
-        wx.chooseImage({
-          count: 1,
-          sizeType: 'original',
-          sourceType: ['camera', 'album'],
-          success (res) {
-            wx.getFileSystemManager().readFile({
-              filePath: res.tempFilePaths[0], //选择图片返回的相对路径
-              encoding: 'base64', //编码格式
-              success: res2 => { //成功的回调
-                that.handleIdentifyInvoice(res2.data)
-              }
-            })
-          }
+      goToCompanyInfo () {
+        wx.navigateTo({
+          url: '../company/companyInfo'
         })
-      },
+      }
     }
 
-    // 获取access_token
-    handleIdentifyInvoice (base64) {
-      wx.showToast({
-        title: '正在识别...',
-        icon: 'loading',
-        mask: true,
-        duration: 60000
-      })
-      let that = this
-      wx.request({
-        url: 'https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=UVVOjbGt1XpSR9cW6GCSh77t&client_secret=mwHCmi819kPcVlOn7r8XAbnerudcOGwB&',
-        method: 'POST',
-        success (res) {
-          that.getInvoiceData(res.data.access_token, base64)
-        },
-        fail (err) {
-          console.log(err);
-        }
-      })
-    }
-
-    // 根据access_token 调用百度云发票识别接口
-    getInvoiceData (access_token, base64) {
-      let that = this
-      wx.request({
-        url: 'https://aip.baidubce.com/rest/2.0/ocr/v1/vat_invoice?access_token=' + access_token,
-        data: {
-          image: base64,
-          detect_direction: true
-        },
-        header: {
-              'content-type': 'application/x-www-form-urlencoded'
-        },
-        method: 'POST',
-        success: (res) => {
-          if (res.data.words_result) {
-            wx.hideToast()
-            wx.navigateTo({url: '../message/message?message=' + JSON.stringify(res.data.words_result) + '&company=' + JSON.stringify(that.companies[that.currentIndex])})
-          }
-          else {
-            wx.hideToast()
-            wx.showModal({
-              title: '识别失败',
-              content: '未能识别出发票信息',
-              confirmText: '自行录入',
-              cancelText: '重选照片',
-              success (res) {
-                if (res.confirm) {
-                  let message = {
-                    AmountInFiguers: "",
-                    AmountInWords: "",
-                    CheckCode: "",
-                    Checker: "",
-                    CommodityAmount: [],
-                    CommodityName: [
-                    ],
-                    CommodityNum: [],
-                    CommodityPrice: [],
-                    CommodityTax: [
-                    ],
-                    CommodityTaxRate: [],
-                    CommodityType: [],
-                    CommodityUnit: [],
-                    InvoiceCode: "",
-                    InvoiceDate: "",
-                    InvoiceNum: "",
-                    InvoiceType: "其他发票",
-                    NoteDrawer: "",
-                    Password: "",
-                    Payee: "",
-                    PurchaserAddress: "",
-                    PurchaserBank: "",
-                    PurchaserName: "",
-                    PurchaserRegisterNum: "",
-                    Remarks: "",
-                    SellerAddress: "",
-                    SellerBank: "",
-                    SellerName: "",
-                    SellerRegisterNum: "",
-                    TotalAmount: "",
-                    TotalTax: "",
-                  }
-                  wx.navigateTo({url: '../message/message?message=' + JSON.stringify(message) + '&company=' + JSON.stringify(that.companies[that.currentIndex])})
-                } else if (res.cancel) {
-
-                }
-              }
-            })
-          }
-        },
-        fail: (err) => {
-          wx.hideToast()
-          wx.showToast({
-            icon: 'none',
-            title: '识别失败，请重新上传照片',
-            duration: 2000
-          })
-          console.log(err)
-        }
-      })
-    }
-
-    async onLoad(options) {
-      this.companies = JSON.parse(options.companies)
+    async onLoad() {
       await wx.login()
       this.userInfo = this.$parent.globalData.userInfo
+    }
+
+    getPhoneNumber (e) {
+
     }
   }
 </script>

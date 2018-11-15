@@ -21,22 +21,6 @@
     </view>
 
     <view class="message-container">
-      <text class="title">一般纳税人状态:</text>
-      <view class="value">
-        <view>
-          <radio-group class="radio-group form-radio" bindchange="taxPersonChange">
-            <label class="radio is-tax">
-              <radio value="是" checked="{{ isTaxPerson }}"/>是
-            </label>
-            <label class="radio is-tax">
-              <radio value="否" checked="{{ !isTaxPerson }}"/>否
-            </label>
-          </radio-group>
-        </view>
-      </view>
-    </view>
-
-    <view class="message-container">
       <text class="title">购买方:</text>
       <view class="value">
         <view>
@@ -100,7 +84,7 @@
           <!-- <input type="text" placeholder="开票日期" value="{{ message.InvoiceDate }}" bindinput="onInput(InvoiceDate)" /> -->
           <picker mode="date" value="{{ message.InvoiceDate || 2000-01-01 }}" start="2000-01-01" end="2050-01-01" bindchange="bindDateChange">
             <view class="picker">
-            选择时间：{{ chooseDate }}
+              选择时间：{{ chooseDate }}
             </view>
           </picker>
         </view>
@@ -134,12 +118,25 @@
         </view>
       </view>
     </view>
-
   </view>
 
-  <view>
+  <view class="question-container">
     <view class="question">
-      <text>1.您属于购买方还是销售方？</text>
+      <text>1.是否为一般纳税人资格状态?</text>
+      <view>
+        <radio-group class="radio-group" bindchange="taxPersonChange">
+          <label class="radio sale">
+            <radio value="是" checked="{{ isTaxPerson }}"/>是
+          </label>
+          <label class="radio sale">
+            <radio value="否" checked="{{ !isTaxPerson }}"/>否
+          </label>
+        </radio-group>
+      </view>
+    </view>
+
+    <view class="question">
+      <text>2.您属于购买方还是销售方？</text>
       <view>
         <radio-group class="radio-group" bindchange="chooseIdentity">
           <label class="radio sale">
@@ -153,7 +150,7 @@
     </view>
 
     <view class="question"  wx:if="{{ message.identity == '购买方' }}">
-      <text>2.发票由谁支付</text>
+      <text>3.发票由谁支付</text>
       <view>
         <radio-group class="radio-group" bindchange="choosePay">
           <label class="radio sale">
@@ -174,7 +171,7 @@
     </view>
 
     <view class="question" wx:if="{{ message.identity == '购买方' }}">
-      <text>3.该笔业务的产生原因？</text>
+      <text>4.该笔业务的产生原因？</text>
       <view>
         <radio-group class="radio-group" bindchange="chooseSource">
           <label class="radio sale">
@@ -232,5 +229,5 @@
     </text>
   </view>
 
-  <button class="confirm" type="primary" name="button" bindtap="handleMakePdf">生成凭证</button>
+  <button plain class="confirm" name="button" bindtap="handleMakePdf">生成凭证</button>
 </view>

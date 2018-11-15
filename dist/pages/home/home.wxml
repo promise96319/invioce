@@ -5,21 +5,6 @@
       <view class="userinfo-nickname">{{ userInfo.nickName }}</view>
     </view>
 
-    <view class="choose-company">
-      <view>
-          <view>
-            请选择公司：
-          </view>
-          <view>
-            <radio-group class="radio-group" bindchange="toggleSelectCompany">
-              <label class="radio is-tax"  wx:for="{{ companies }}" wx:key="index">
-                <radio value="{{ index }}" checked="{{ index == currentIndex }}"/>{{ item.companyName }}
-              </label>
-            </radio-group>
-          </view>
-      </view>
-      <button type="primary" class="get-photo" bindtap="getPhoto">
-        点击拍照或者选取照片
-      </button>
-    </view>
+    <button class="tel-btn plain" open-type="getPhoneNumber" bindgetphonenumber="getPhoneNumber" disabled>电话授权(暂无功能)</button>
+    <button class="company-btn selected" bindtap="goToCompanyInfo">已绑定的公司</button>
   </view>

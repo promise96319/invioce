@@ -3,29 +3,40 @@
   left: -30000rpx;
 }
 .canvas-container {
-  width: 1500rpx;
+  width: 750rpx;
 }
 .canvas {
-  width: 1500rpx;
+  width: 750rpx;
   height: 1500rpx;
   display: inline-block;
 }
 .img-container {
   width: 100%;
-  height: 1500rpx;
 }
 .real-img {
-  width: 1500rpx;
-  height: 1500rpx;
+  width: 750rpx;
 }
 image {
-  width: 1500rpx;
-  height: 1500rpx;
+  width: 750rpx;
 }
 .confirm-container {
-  display: flex;
-  margin: 60rpx 0 100rpx;
+  margin: 40rpx 0 100rpx;
 }
-.confirm-container button {
-  margin: 0 40rpx;
+.confirm-container button[plain] {
+  margin-bottom: 20rpx;
+  width: 600rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  border: 1rpx solid #55acee;
+  border-radius: 8rpx;
+  background-color: #fff;
+  color: #55ACEE;
+  font-size: 36rpx;
+  font-family: PingFang-SC-Regular;
+  font-weight: 400;
+}
+.confirm-container .save-pic[plain] {
+  color: #fff;
+  background-color: #55ACEE;
+  border: none;
 }

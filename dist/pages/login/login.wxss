@@ -1,3 +1,14 @@
-.login-button {
-  margin-top: 400rpx;
+.logo-img {
+  width: 378rpx;
+  height: 126rpx;
+  margin-top: 321rpx;
+}
+.login-button[type=primary] {
+  width: 600rpx;
+  position: absolute;
+  bottom: 60rpx;
+  background-color: #55ACEE;
+  font-family: PingFang-SC-Regular;
+  font-size: 36rpx;
+  font-weight: 400;
 }

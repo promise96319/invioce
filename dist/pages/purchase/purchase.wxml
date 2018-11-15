@@ -2,7 +2,7 @@
 <view class="container">
   <scroll-view class="img-container" scroll-x>
     <view class="real-img">
-      <image src="{{ tempFilePath }}"/>
+      <image src="{{ tempFilePath }}" style="height: {{ imageHeight * 2 }}rpx;"/>
     </view>
   </scroll-view>
   <view class="certificate">
@@ -10,7 +10,7 @@
   </view>
 
   <view class="confirm-container">
-    <button type="primary" bindtap="hanldeSavePic">确定</button>
-    <button type="primary" bindtap="handleCancel">取消</button>
+    <button plain bindtap="hanldeSavePic" class="save-pic">保存</button>
+    <button plain bindtap="handleCancel">取消</button>
   </view>
 </view>

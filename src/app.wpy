@@ -17,8 +17,9 @@ export default class extends wepy.app {
   config = {
     pages: [
       'pages/login/login', //授权登录
+      'pages/home/home', //主页
       'pages/company/companyInfo',  //绑定公司信息
-      'pages/home/home', //发票识别接口
+      'pages/invoice/invoice',  //发票识别
       'pages/message/message', //发票是识别后的信息展示
       'pages/purchase/purchase', //为购买者时的凭证
       'pages/sale/sale', //为销售者时的凭证

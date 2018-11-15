@@ -3,6 +3,11 @@ view {
     box-sizing: border;
 }
 
+radio .wx-radio-input {
+    width: 24rpx;
+    height: 24rpx;
+}
+
 .container {
     margin: 40rpx 30rpx 160rpx;
 }
@@ -17,50 +22,53 @@ view {
 
 .message-container:last-child .title,
 .message-container:last-child .value {
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid #999;
 }
 
 .title {
     padding: 10rpx;
     flex: 1;
-    border-top: 1px solid #ccc;
-    border-left: 1px solid #ccc;
+    border-top: 1px solid #999;
+    border-left: 1px solid #999;
     display: flex;
     align-items: center;
     justify-content: flex-end;
     text-align: right;
+    color: #333;
 }
 
 .goods-detail {
-  padding: 10rpx;
-  flex: 1;
-  border-top: 1px solid #ccc;
-  border-left: 1px solid #ccc;
-  display: flex;
-  text-align: center;
-  justify-content: space-around;
-  flex-direction: column;
-  align-items: center;
+    padding: 10rpx;
+    flex: 1;
+    border-top: 1px solid #999;
+    border-left: 1px solid #999;
+    display: flex;
+    text-align: center;
+    justify-content: space-around;
+    flex-direction: column;
+    align-items: center;
+    color: #333;
 }
 
 .value {
     flex: 3;
-    border-top: 1px solid #ccc;
-    border-left: 1px solid #ccc;
-    border-right: 1px solid #ccc;
+    border-top: 1px solid #999;
+    border-left: 1px solid #999;
+    border-right: 1px solid #999;
     display: flex;
     align-items: stretch;
     justify-content: space-around;
     align-items: center;
+    color: #333;
 }
 
 .value > view {
-  width: 100%;
+    width: 100%;
 }
 
 .value > picker {
-  height: 100%;
-  width: 100%;
+    height: 100%;
+    width: 100%;
 }
 
 .value > view > input,
@@ -73,19 +81,19 @@ view {
 }
 
 .form-radio {
-  height: 100%;
-  display: flex;
-  align-items: center;
+    height: 100%;
+    display: flex;
+    align-items: center;
 }
 
 .radio {
     font-size: 22rpx;
-    margin-right: 4rpx;
+    margin-right: 30rpx;
 }
 
 .is-tax {
-  font-size: 30rpx;
-  margin-right: 24rpx;
+    font-size: 28rpx;
+    margin-right: 60rpx;
 }
 
 .things-container {
@@ -114,8 +122,8 @@ view {
     padding-left: 10rpx;
     text-align: right;
     align-items: center;
-    border-right: 1px solid #ccc;
-    border-bottom: 1px solid #ccc;
+    border-right: 1px solid #999;
+    border-bottom: 1px solid #999;
 }
 
 .things-value {
@@ -123,7 +131,7 @@ view {
     display: flex;
     padding-left: 14rpx;
     align-items: center;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid #999;
 }
 
 .value textarea {
@@ -142,34 +150,51 @@ view {
     align-items: flex-start;
 }
 
-.question {
+.question-container {
     width: 100%;
-    margin-top: 80rpx;
+    margin-top: 90rpx;
+}
+
+.question {
+  background-color: rgba(245, 245, 245, 1);
+  padding: 30rpx;
+  margin-top: 20rpx;
+}
+
+.question > view {
+  margin-top: 20rpx;
 }
 
 .sale {
-    font-size: 32rpx;
-    line-height: 40rpx;
+    font-size: 28rpx;
+    line-height: 48rpx;
     margin: 16rpx 60rpx;
     display: block;
 }
 
 .sale input {
     outline: none;
-    border: 1px solid #ccc;
+    border: 1px solid #999;
     border-radius: 10rpx;
 }
 
 .err-message {
     color: red;
+    font-size: 28rpx;
     height: 36rpx;
     line-height: 20rpx;
 }
 
-.confirm {
+.confirm[plain] {
     margin-top: 40rpx;
+    width: 600rpx;
+    height: 80rpx;
+    line-height: 80rpx;
+    background-color: #55ACEE;
+    color: #fff;
+    font-size: 36rpx;
+    border: none;
 }
-
 </style>
 
 <template>
@@ -188,22 +213,6 @@ view {
             </label>
             <label class="radio">
                 <radio value="其他发票" checked="{{ judgeOtherInvoiceType }}"/>其他发票
-            </label>
-          </radio-group>
-        </view>
-      </view>
-    </view>
-
-    <view class="message-container">
-      <text class="title">一般纳税人状态:</text>
-      <view class="value">
-        <view>
-          <radio-group class="radio-group form-radio" @change="taxPersonChange">
-            <label class="radio is-tax">
-              <radio value="是" checked="{{ isTaxPerson }}"/>是
-            </label>
-            <label class="radio is-tax">
-              <radio value="否" checked="{{ !isTaxPerson }}"/>否
             </label>
           </radio-group>
         </view>
@@ -274,7 +283,7 @@ view {
           <!-- <input type="text" placeholder="开票日期" value="{{ message.InvoiceDate }}" @input="onInput(InvoiceDate)" /> -->
           <picker mode="date" value="{{ message.InvoiceDate || 2000-01-01 }}" start="2000-01-01" end="2050-01-01" bindchange="bindDateChange">
             <view class="picker">
-            选择时间：{{ chooseDate }}
+              选择时间：{{ chooseDate }}
             </view>
           </picker>
         </view>
@@ -308,12 +317,25 @@ view {
         </view>
       </view>
     </view>
-
   </view>
 
-  <view>
+  <view class="question-container">
     <view class="question">
-      <text>1.您属于购买方还是销售方？</text>
+      <text>1.是否为一般纳税人资格状态?</text>
+      <view>
+        <radio-group class="radio-group" @change="taxPersonChange">
+          <label class="radio sale">
+            <radio value="是" checked="{{ isTaxPerson }}"/>是
+          </label>
+          <label class="radio sale">
+            <radio value="否" checked="{{ !isTaxPerson }}"/>否
+          </label>
+        </radio-group>
+      </view>
+    </view>
+
+    <view class="question">
+      <text>2.您属于购买方还是销售方？</text>
       <view>
         <radio-group class="radio-group" @change="chooseIdentity">
           <label class="radio sale">
@@ -327,7 +349,7 @@ view {
     </view>
 
     <view class="question" wx:if="{{ message.identity == '购买方' }}">
-      <text>2.发票由谁支付</text>
+      <text>3.发票由谁支付</text>
       <view>
         <radio-group class="radio-group" @change="choosePay">
           <label class="radio sale">
@@ -348,7 +370,7 @@ view {
     </view>
 
     <view class="question" wx:if="{{ message.identity == '购买方' }}">
-      <text>3.该笔业务的产生原因？</text>
+      <text>4.该笔业务的产生原因？</text>
       <view>
         <radio-group class="radio-group" @change="chooseSource">
           <label class="radio sale">
@@ -406,7 +428,7 @@ view {
     </text>
   </view>
 
-  <button class="confirm" type="primary" name="button" @tap="handleMakePdf">生成凭证</button>
+  <button plain class="confirm" name="button" @tap="handleMakePdf">生成凭证</button>
 </view>
 </template>
 
@@ -491,11 +513,11 @@ export default class Message extends wepy.page {
             this.message[type][index].word = ''
           }
         } else {
-            if (res[0] === '-' && res.length === 1) {
-              this.message[type][index].word = res
-            } else {
-              this.message[type][index].word = parseFloat(res) || 0
-            }
+          if (res[0] === '-' && res.length === 1) {
+            this.message[type][index].word = res
+          } else {
+            this.message[type][index].word = parseFloat(res) || 0
+          }
         }
       } else {
         this.message[type][index].word = res
@@ -517,28 +539,28 @@ export default class Message extends wepy.page {
     handleDiscription(e) {
       this.message.discription = e.detail.value
       // 判断业务产生的原因
-        if (this.message.identity !== '购买方' || !this.message.discription) return
+      if (this.message.identity !== '购买方' || !this.message.discription) return
 
-        if (['团建', '节日礼品', '生日礼品', '聚餐', '员工病假慰问', '员工产假慰问'].some((item) => {
+      if (['团建', '节日礼品', '生日礼品', '聚餐', '员工病假慰问', '员工产假慰问'].some((item) => {
           return this.message.discription.indexOf(item) !== -1
         })) {
-           this.message.source = '员工福利'
-           return
-        }
-        if (['客户礼品', '为客户支付的差旅费用', '商务洽谈用餐'].some((item) => {
+        this.message.source = '员工福利'
+        return
+      }
+      if (['客户礼品', '为客户支付的差旅费用', '商务洽谈用餐'].some((item) => {
           return this.message.discription.indexOf(item) !== -1
         })) {
-           this.message.source = '业务招待'
-           return
-        }
-        if (['出差', '差旅', '商务旅行', '机票', '火车票', '公共交通', '租车', '大巴', '长途客车', '酒店', '餐饮', '停车费', '出租车费', '网约车费', '旅行保险',].some((item) => {
+        this.message.source = '业务招待'
+        return
+      }
+      if (['出差', '差旅', '商务旅行', '机票', '火车票', '公共交通', '租车', '大巴', '长途客车', '酒店', '餐饮', '停车费', '出租车费', '网约车费', '旅行保险', ].some((item) => {
           return this.message.discription.indexOf(item) !== -1
         })) {
-           this.message.source = '员工差旅费用'
-           return
-        }
+        this.message.source = '员工差旅费用'
+        return
+      }
 
-        this.message.source = '其他'
+      this.message.source = '其他'
     },
     // 发票由谁支付
     handleBelongTo(e) {
@@ -606,6 +628,8 @@ export default class Message extends wepy.page {
         }
       }
 
+      this.errMessage = ''
+
       if (this.message.identity === '销售方') {
         wx.navigateTo({
           url: '../sale/sale?result=' + JSON.stringify(this.message)
@@ -661,24 +685,10 @@ export default class Message extends wepy.page {
     //     word: "12345.89",
     //     row: "1"
     //   }],
-    //   CommodityName: [
-    //     {
+    //   CommodityName: [{
     //     word: "货物可乐",
     //     row: "1"
-    //   }, {
-    //     word: "货物可乐",
-    //     row: "1"
-    //   }, {
-    //     word: "货物可乐",
-    //     row: "1"
-    //   }, {
-    //     word: "货物可乐",
-    //     row: "1"
-    //   }, {
-    //     word: "货物可乐",
-    //     row: "1"
-    //   }
-    // ],
+    //   }],
     //   CommodityNum: [{
     //     word: "23.34",
     //     row: "1"
@@ -783,21 +793,39 @@ export default class Message extends wepy.page {
     }
 
     if (this.message.CommodityName.length === 0) {
-      this.message.CommodityName.push({word: '', row: 1})
-      this.message.CommodityAmount.push({word: '', row: 1})
-      this.message.CommodityTax.push({word: '', row: 1})
+      this.message.CommodityName.push({
+        word: '',
+        row: 1
+      })
+      this.message.CommodityAmount.push({
+        word: '',
+        row: 1
+      })
+      this.message.CommodityTax.push({
+        word: '',
+        row: 1
+      })
     } else {
       let tempNameFront = this.message.CommodityName.slice(0, index + 1)
       let tempNameBack = this.message.CommodityName.slice(index + 1)
-      this.message.CommodityName = [...tempNameFront, {word: '', row: index + 1}, ...tempNameBack]
+      this.message.CommodityName = [...tempNameFront, {
+        word: '',
+        row: index + 1
+      }, ...tempNameBack]
 
       let tempAmountFront = this.message.CommodityAmount.slice(0, index + 1)
       let tempAmountBack = this.message.CommodityAmount.slice(index + 1)
-      this.message.CommodityAmount = [...tempAmountFront, {word: '', row: index + 1}, ...tempAmountBack]
+      this.message.CommodityAmount = [...tempAmountFront, {
+        word: '',
+        row: index + 1
+      }, ...tempAmountBack]
 
       let tempTaxFront = this.message.CommodityTax.slice(0, index + 1)
       let tempTaxBack = this.message.CommodityTax.slice(index + 1)
-      this.message.CommodityTax = [...tempTaxFront, {word: '', row: index + 1}, ...tempTaxBack]
+      this.message.CommodityTax = [...tempTaxFront, {
+        word: '',
+        row: index + 1
+      }, ...tempTaxBack]
     }
   }
 

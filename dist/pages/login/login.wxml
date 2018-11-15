@@ -1,5 +1,6 @@
 
   <view class="container">
+    <image src="../../assets/images/logo.png" class="logo-img"/>
     <button type="primary"  wx:if="{{canIUse}}" open-type="getUserInfo" bindgetuserinfo="bindGetUserInfo" class="login-button">授权登录</button>
     <view  wx:else>请升级微信版本</view>
   </view>

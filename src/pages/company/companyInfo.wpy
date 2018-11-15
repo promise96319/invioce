@@ -1,159 +1,186 @@
 <style lang="less">
   .container {
-    margin-bottom: 200rpx;
-  }
-
-  .userinfo {
-    margin: 80rpx;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .userinfo-avatar {
-    width: 120rpx;
-    height: 120rpx;
-    border-radius: 50%;
-  }
-
-  .userinfo-nickname {
-    color: #aaa;
-  }
-
-  .company-msg .title button {
-    display: block;
-    margin-bottom: 20rpx;
+    padding-bottom: 360rpx;
   }
 
   .company-detail-container {
-    margin: 100rpx 0 100rpx;
-  }
-
-  .company-num {
-    height: 90rpx;
-    line-height: 20rpx;
-  }
-
-  .company-num text {
-    display: inline-block;
+    width: 710rpx;
+    height: 480rpx;
+    margin: 20rpx;
+    box-sizing: border-box;
+    border: 1px solid rgba(51,51,51,1);
+    background-color: rgba(245, 245, 245, 1);
+    position: relative;
   }
 
   .company-detail {
+    flex: 1;
     display: flex;
-    width: 600rpx;
+    align-items: center;
+    height: 70rpx;
+    line-height: 70rpx;
   }
 
-  .company-title,
-  .company-value {
-    margin-bottom: 30rpx;
-    font-size: 36rpx;
+  .company-detail:first-child {
+    margin-top: 20rpx;
   }
 
   .company-title {
-    height: 60rpx;
-    line-height: 60rpx;
-    margin-right: 20rpx;
+    padding: 0 10rpx 0 30rpx;
+    width: 180rpx;
+    font-size: 26rpx;
+    font-family: PingFang-SC-Medium;
+    font-weight: 500;
+    color: rgba(71,71,71,1);
+    letter-spacing: 0;
+  }
+
+  .title-company {
+    letter-spacing: 16rpx;
+  }
+
+  .title-name {
+    letter-spacing: 6rpx;
+  }
+
+  .title-status {
+    margin-top: 10rpx;
+    line-height: 30rpx;
+  }
+
+  .title-status view:first-child {
+    letter-spacing: 6rpx;
+  }
+
+  .title-status view:last-child {
+    letter-spacing: 16rpx;
   }
 
   .company-value input {
-    width: 320rpx;
-    height: 60rpx;
-    line-height: 60rpx;
+    box-sizing: border-box;
+    padding: 0 16rpx;
+    font-size: 24rpx;
+    height: 40rpx;
+    line-height: 40rpx;
+    min-height: 40rpx;
+    background: rgba(255,255,255,1);
+    border: 1rpx solid rgba(230,230,230,1);
+    width: 460rpx;
   }
 
-  .delete-company {
-    display: inline-block;
-    float: right;
+  .radio {
+    font-size: 26rpx;
+    margin-right: 40rpx;
   }
 
-  .choose-company {
-    margin-top: 60rpx;
-    text-align: center;
+  radio .wx-radio-input {
+    width: 30rpx;
+    height: 30rpx;
   }
 
-  .is-tax {
-    display: block;
+  .radio radio {
   }
 
-  .choose-company .is-tax {
-    margin: 30rpx 0;
+  .save-delete {
+    width: 100%;
+    height: 66rpx;
+    display: flex;
+    position: absolute;
+    bottom: 0;
   }
 
-  input {
-    border-bottom: 1px solid #aaa;
+  .delete-company[plain],
+  .save-company[plain] {
+    flex: 1;
+    color: #fff;
+    border: none;
+    border-radius: 0;
+    font-size: 26rpx;
+    font-weight: 400;
+    line-height: 66rpx;
   }
 
-  .err-message {
-    margin-top: -40rpx;
+  .delete-company[plain] {
+    background: rgba(179,179,179,1);
+  }
+
+  .save-company[plain] {
+    background-color: #55ACEE;
+  }
+
+  .menu {
+    position: fixed;
+    background-color: transparent;
+    margin-bottom: 40rpx;
+    bottom: 0;
+    z-index: 999;
+  }
+
+  .menu button[plain] {
+    width: 600rpx;
     height: 80rpx;
-    font-size: 30rpx;
     line-height: 80rpx;
-    color: red;
+    font-size: 36rpx;
+    font-family: PingFang-SC-Regular;
+    font-weight: 300;
+    color: rgba(85,172,238,1);
+    background: rgba(255,255,255,1);
+    border: 1rpx solid rgba(85,172,238,1);
+    border-radius: 8rpx;
+    margin-bottom: 20rpx;
   }
+
+  .menu .active[plain] {
+    border: none;
+    color: #fff;
+    background-color: #55ACEE;
+  }
+
 </style>
 
 <template>
   <view class="container">
-    <view class="userinfo" @tap="handleViewTap">
-      <image class="userinfo-avatar" src="{{ userInfo.avatarUrl }}" background-size="cover"/>
-      <view class="userinfo-nickname">{{ userInfo.nickName }}</view>
-    </view>
-
-    <view class="company-msg">
-        <view class="title">
-          <!-- <button open-type="getPhoneNumber" @getphonenumber="getPhoneNumber">授权获取手机号码 </button> -->
-          <button type="primary" size="mini" @tap="handleQuery">纳税人一户式查询入口  >></button>
-          <button type="primary" size="mini" @tap="handleAddCompany">
-            新增绑定公司
-          </button>
-        </view>
-
       <view wx:for="{{ companies }}" wx:key="index" class="company-detail-container">
-          <view class="company-num">
-            <text>
-              公司信息{{ index + 1 }}:
-            </text>
-            <button class="delete-company" type="warn" size="mini" @tap="handleDeleteCompany({{ index }})">删除</button>
-          </view>
           <view class="company-detail">
-            <view class="company-title">
-              <text>公司名称:</text>
+            <view class="company-title title-company">
+              <text>公司名称</text>
             </view>
             <view class="company-value">
-              <input type="text" value="{{ item.companyName }}" placeholder="请输入公司名称" @input="handleInput({{ index }}, 'companyName')"/>
+              <input type="text" value="{{ item.companyName }}" placeholder="请输入公司名称" placeholder-class="placeholder" @input="handleInput({{ index }}, 'companyName')"/>
             </view>
           </view>
 
           <view class="company-detail">
-            <view class="company-title">
-              <text>纳税人识别号:</text>
+            <view class="company-title title-num">
+              <text>纳税人识别号</text>
             </view>
             <view class="company-value">
-              <input type="text" value="{{ item.personNum }}" placeholder="请输入纳税人识别号" @input="handleInput({{ index }}, 'personNum')"/>
+              <input type="text" value="{{ item.personNum }}" placeholder="请输入纳税人识别号"  placeholder-class="placeholder" @input="handleInput({{ index }}, 'personNum')"/>
             </view>
           </view>
 
           <view class="company-detail">
-            <view class="company-title">
-              <text>联系人姓名:</text>
+            <view class="company-title title-name">
+              <text>联系人姓名</text>
             </view>
             <view class="company-value">
-              <input type="text" value="{{ item.personName }}" placeholder="请输入联系人姓名" @input="handleInput({{ index }}, 'personName')"/>
+              <input type="text" value="{{ item.personName }}" placeholder="请输入联系人姓名" placeholder-class="placeholder" @input="handleInput({{ index }}, 'personName')"/>
             </view>
           </view>
 
           <view class="company-detail">
-            <view class="company-title">
-              <text>联系人手机号:</text>
+            <view class="company-title title-tel">
+              <text>联系人手机号</text>
             </view>
             <view class="company-value">
-              <input type="number" value="{{ item.personTelNum }}" placeholder="请输入联系人手机号码" @input="handleInput({{ index }}, 'personTelNum')"/>
+              <input type="number" value="{{ item.personTelNum }}" placeholder="请输入联系人手机号码" placeholder-class="placeholder" @input="handleInput({{ index }}, 'personTelNum')"/>
             </view>
           </view>
 
           <view class="company-detail">
-            <view class="company-title">
-              <text>一般纳税人状态:</text>
+            <view class="company-title title-status">
+              <view>一般纳税人</view>
+              <view>资格状态</view>
             </view>
             <view class="company-value">
               <radio-group class="radio-group" @change="taxPersonChange({{ index }})">
@@ -166,18 +193,22 @@
               </radio-group>
             </view>
           </view>
+
+          <view class="save-delete">
+            <button plain class="delete-company" @tap="handleDeleteCompany({{ index }})">删除</button>
+            <button plain class="save-company" @tap="handleSaveCompany({{ index }})">保存</button>
+          </view>
       </view>
 
-      <view class="err-message">
-        <text wx:if="{{ errMessage }}">{{ errMessage }}</text>
+      <view class="menu">
+          <button plain @tap="handleAddCompany" class="{{ currentActive == 'add' ? 'active' : '' }}">
+            新增绑定公司
+          </button>
+          <button plain @tap="handleQuery" class="{{ currentActive == 'query' ? 'active' : '' }}">查询入口</button>
+          <button plain @tap="goToInvoice" class="{{ currentActive == 'invoice' ? 'active' : '' }}">
+            发票识别
+          </button>
       </view>
-
-      <view wx:if="{{ companies.length !== 0 }}">
-        <button type="primary" @tap="handleSaveCompany">
-          确认
-        </button>
-      </view>
-    </view>
   </view>
 </template>
 
@@ -193,9 +224,121 @@
       userInfo: {
         nickName: '加载中...',
       },
-      time: 0,
-      timer: null,
-      companies: [
+      companies: [],
+      currentActive: 'add'
+    }
+
+    methods = {
+      // 保存公司信息
+      handleSaveCompany(index) {
+          if (!this.companies[index].companyName) {
+            wx.showToast({
+              title: '请填写公司名称',
+              icon: 'none',
+            })
+            return
+          }
+
+          if (!this.companies[index].personNum) {
+            wx.showToast({
+              title: '请填写纳税人识别号',
+              icon: 'none',
+            })
+            return
+          }
+
+          if (!this.companies[index].personName) {
+            wx.showToast({
+              title: '请填写联系人姓名',
+              icon: 'none',
+            })
+            return
+          }
+
+          if (!this.companies[index].personTelNum) {
+            wx.showToast({
+              title: '请填写联系人手机号',
+              icon: 'none',
+            })
+            return
+          }
+
+          if (!(/^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(17[0,3,5-8])|(18[0-9])|166|198|199|(147))\d{8}$/.test(this.companies[index].personTelNum))) {
+            wx.showToast({
+              title: '联系人手机号格式不正确',
+              icon: 'none',
+            })
+            return
+          }
+
+          wx.showToast({
+            title: '保存成功',
+            icon: 'success',
+          })
+      },
+      // 删除公司信息
+      handleDeleteCompany(index) {
+        this.companies.splice(index, 1)
+      },
+      // 添加公司信息
+      handleAddCompany() {
+        this.currentActive = 'add'
+        this.companies.unshift({
+          companyName: '',
+          personName: '',
+          isTaxPerson: true,
+          personNum: '',
+          personTelNum: ''
+        })
+        this.$apply()
+        wx.pageScrollTo({
+          scrollTop: 0,
+          duration: 300
+        })
+      },
+      // 是否为一般纳税人资格
+      taxPersonChange(index, e) {
+        this.companies[index].isTaxPerson = e.detail.value === '是' ? true : false
+      },
+      // 处理输入内容
+      handleInput (index, name, e) {
+        this.companies[index][name] = e.detail.value
+      },
+      // 跳转到查询页面
+      handleQuery () {
+        this.currentActive = 'query'
+        wx.navigateTo({
+          url: '../query/query'
+        })
+      },
+      goToInvoice () {
+        for (let i = 0; i < this.companies.length; i++) {
+          if (!this.companies[i].companyName || !this.companies[i].personNum || !this.companies[i].personName || !this.companies[i].personTelNum) {
+            wx.showToast({
+              title: '请确保公司信息填写完整',
+              icon: 'none'
+            })
+            return
+          }
+
+          if (!(/^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(17[0,3,5-8])|(18[0-9])|166|198|199|(147))\d{8}$/.test(this.companies[i].personTelNum))) {
+            wx.showToast({
+              title: '请确保' + this.companies[i].companyName + '中的联系人手机号格式正确',
+              icon: 'none',
+              duration: 2500,
+            })
+            return
+          }
+        }
+        this.currentActive = 'invoice'
+        wx.navigateTo({
+          url: '../invoice/invoice?companies=' + JSON.stringify(this.companies)
+        })
+      }
+    }
+
+    async onLoad() {
+      this.companies = [
         {
           companyName: '有方教育0',
           personName: 'embark',
@@ -210,90 +353,7 @@
           personNum: '1213',
           personTelNum: '13012345678'
         },
-      ],
-      errMessage: ''
-    }
-
-    methods = {
-      // 保存公司信息
-      handleSaveCompany() {
-        let flag = true
-        // 为利用break提前终止判断，因而使用for
-        for (let i = 0; i < this.companies.length; i++) {
-          if (!this.companies[i].companyName) {
-            flag = false
-            this.errMessage = '请填写公司信息' + (i + 1) + '中的公司名称'
-            break
-          }
-
-          if (!this.companies[i].personNum) {
-            flag = false
-            this.errMessage = '请填写公司信息' + (i + 1) + '中的纳税人识别号'
-            break
-          }
-
-          if (!this.companies[i].personName) {
-            flag = false
-            this.errMessage = '请填写公司信息' + (i + 1) + '中的联系人姓名'
-            break
-          }
-
-          if (!this.companies[i].personTelNum) {
-            flag = false
-            this.errMessage = '请填写公司信息' + (i + 1) + '中的联系人手机号'
-            break
-          }
-
-          if (!(/^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(17[0,3,5-8])|(18[0-9])|166|198|199|(147))\d{8}$/.test(this.companies[i].personTelNum))) {
-            flag = false
-            this.errMessage = '公司信息' + (i + 1) + '中联系人手机号格式不正确'
-            break
-          }
-        }
-
-        if (flag) {
-          wx.navigateTo({
-            url: '../home/home?companies=' + JSON.stringify(this.companies)
-          })
-        }
-      },
-      // 删除公司信息
-      handleDeleteCompany(index) {
-        this.companies.splice(index, 1)
-      },
-      // 添加公司信息
-      handleAddCompany() {
-        this.isShow = false
-        this.companies.push({
-          companyName: '',
-          personName: '',
-          isTaxPerson: true,
-          personNum: '',
-          personTelNum: ''
-        })
-      },
-      // 是否为一般纳税人资格
-      taxPersonChange(index, e) {
-        this.companies[index].isTaxPerson = e.detail.value === '是' ? true : false
-      },
-      // 处理输入内容
-      handleInput (index, name, e) {
-        this.isShow = false
-        this.companies[index][name] = e.detail.value
-      },
-      // 跳转到查询页面
-      handleQuery () {
-        wx.navigateTo({
-          url: '../query/query'
-        })
-      }
-    }
-
-    getPhoneNumber (e) {
-
-  	}
-
-    async onLoad() {
+      ]
       await wx.login()
       this.userInfo = this.$parent.globalData.userInfo
     }
