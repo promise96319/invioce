@@ -1,4 +1,8 @@
 <style lang="less">
+.container {
+  margin-bottom: 160rpx;
+}
+
 .certificate {
   position: absolute;
   left: -30000rpx;
@@ -65,14 +69,13 @@ image {
 
   <view class="confirm-container">
     <button plain @tap="hanldeSavePic" class="save-pic">保存</button>
-    <button plain @tap="handleCancel">取消</button>
+    <button plain @tap="handleCancel">回到主页</button>
   </view>
 </view>
 </template>
 
 <script>
 import wepy from 'wepy'
-import util from '../../utils/util'
 
 export default class Sale extends wepy.page {
   config = {
@@ -101,9 +104,14 @@ export default class Sale extends wepy.page {
               wx.saveImageToPhotosAlbum({
                   filePath: res1.path,
                   success: function (res2) {
-                    wx.navigateBack({
-                        delta: 1
+                    wx.showToast({
+                      title: '保存成功',
                     })
+                    setTimeout(() => {
+                      wx.redirectTo({
+                        url: '../home/home'
+                      })
+                    }, 1500)
                   },
                   fail: function (err) {
                     console.log(err)
@@ -113,8 +121,8 @@ export default class Sale extends wepy.page {
       })
     },
     handleCancel () {
-      wx.navigateBack({
-          delta: 1
+      wx.redirectTo({
+        url: '../home/home'
       })
     }
   }
@@ -126,167 +134,87 @@ export default class Sale extends wepy.page {
        duration: 10000
      })
     this.result = JSON.parse(options.result)
-    // this.result = {
-    //   "InvoiceNum": "32330739",
-    //   "SellerName": "北京冠月餐饮管理有限公司",
-    //   "CommodityTaxRate": [{
-    //     "word": "6%",
-    //     "row": "1"
-    //   }],
-    //   "SellerBank": "北京市海淀区中关村东路1号院2号楼101室62798988",
-    //   "Checker": "",
-    //   "TotalAmount": "18647.17",
-    //   "CommodityAmount": [
-    //     {
-    //     "word": "18647.17",
-    //     "row": "1"
-    //   },
-    //     {
-    //     "word": "18647.17",
-    //     "row": "1"
-    //   },
-    //     {
-    //     "word": "18647.17",
-    //     "row": "1"
-    //   },
-    //     {
-    //     "word": "18647.17",
-    //     "row": "1"
-    //   },
-    //     {
-    //     "word": "18647.17",
-    //     "row": "1"
-    //   },
-    //     {
-    //     "word": "18647.17",
-    //     "row": "1"
-    //   },
-    //     {
-    //     "word": "18647.17",
-    //     "row": "1"
-    //   },
-    //     {
-    //     "word": "18647.17",
-    //     "row": "1"
-    //   },
-    //   {
-    //     "word": "18647.17",
-    //     "row": "2"
-    //   }],
-    //   "InvoiceDate": "2018年08月19日",
-    //   "CommodityTax": [
-    //     {
-    //     "word": "1118.83",
-    //     "row": "1"
-    //   },
-    //     {
-    //     "word": "1118.83",
-    //     "row": "1"
-    //   },
-    //     {
-    //     "word": "1118.83",
-    //     "row": "1"
-    //   },
-    //     {
-    //     "word": "1118.83",
-    //     "row": "1"
-    //   },
-    //     {
-    //     "word": "1118.83",
-    //     "row": "1"
-    //   },
-    //     {
-    //     "word": "1118.83",
-    //     "row": "1"
-    //   },
-    //     {
-    //     "word": "1118.83",
-    //     "row": "1"
-    //   },
-    //     {
-    //     "word": "1118.83",
-    //     "row": "1"
-    //   },
-    //    {
-    //     "word": "1738.83",
-    //     "row": "2"
-    //   }],
-    //   "PurchaserName": "上海有略教育科技有限公司",
-    //   "CommodityNum": [{
-    //     "word": "",
-    //     "row": "1"
-    //   }],
-    //   "PurchaserBank": "",
-    //   "Remarks": "校验码00345802256",
-    //   "Password": "52//5501+14906-+03<-3084-89<980719>+25-4+63867<83<+0301-*01+9<*0/90</46-<029884>54-28>>039/+/36*+93/785>04>",
-    //   "SellerAddress": "号101室62798988911",
-    //   "PurchaserAddress": "",
-    //   "InvoiceCode": "011001800104",
-    //   "CommodityUnit": [{
-    //     "word": "",
-    //     "row": "1"
-    //   }],
-    //   "Payee": "甄婷",
-    //   "PurchaserRegisterNum": "91310110MAG0WN",
-    //   "CommodityPrice": [{
-    //     "word": "",
-    //     "row": "1"
-    //   }],
-    //   "NoteDrawer": "顾新杰",
-    //   "AmountInWords": "万仟柒佰陆拾陆圆整",
-    //   "AmountInFiguers": "19766.00",
-    //   "TotalTax": "1118.30",
-    //   "InvoiceType": "专用发票",
-    //   "SellerRegisterNum": "911101087975834338",
-    //   "CommodityName": [
-    //     {
-    //     "word": "*餐饮服务*餐费",
-    //     "row": "1"
-    //   },
-    //     {
-    //     "word": "*餐饮服务*餐费",
-    //     "row": "1"
-    //   },
-    //     {
-    //     "word": "*餐饮服务*餐费",
-    //     "row": "1"
-    //   },
-    //     {
-    //     "word": "*餐饮服务*餐费",
-    //     "row": "1"
-    //   },
-    //     {
-    //     "word": "*餐饮服务*餐费",
-    //     "row": "1"
-    //   },
-    //     {
-    //     "word": "*餐饮服务*餐费",
-    //     "row": "1"
-    //   },
-    //     {
-    //     "word": "*餐饮服务*餐费",
-    //     "row": "1"
-    //   },
-    //     {
-    //     "word": "*餐饮服务*餐费",
-    //     "row": "1"
-    //   },
-    //   {
-    //     "word": "*ai教育",
-    //     "row": "2"
-    //   }],
-    //   "CommodityType": [{
-    //     "word": "",
-    //     "row": "1"
-    //   }],
-    //   "CheckCode": "0034580225619590949",
-    //   "identity": "购买方",
-    //   "pay": "业务招待",
-    //   "source": "公司员工",
-    //   "personName": "张三啊",
-    //   "discription": "我来自中国，我再djkdkj直播，我得过世界冠军，我也办过转,你要额你都能记得看暗号都会",
-    //   "belongProject": "天地大同"
-    // }
+   //  this.result = {
+   //   "summary": "这是业务描述",
+   //   "preparedBy": "c",
+   //   "client": "个",
+   //   "supplier": "广东苏宁云商磷售有限公司",
+   //   "project": "这是业务所属项目",
+   //   "employeeName": "xiu小明",
+   //   "thirdPartyName": "",
+   //   "invoice": {
+   //     "purchaserName": "航天信息份有限公司",
+   //     "sellerName": "航天信息股份有限公司",
+   //     "invoiceType": 0,
+   //     "invoiceNum": "00593803",
+   //     "invoiceDate": "2014-12-31T16:00:00.000Z",
+   //     "amountInFiguers": "5.15",
+   //     "serviceDetail": [
+   //       {
+   //         "commodityName": "货物可乐",
+   //         "commodityAmount": "12345.89",
+   //         "commodityTax": "0.03"
+   //       }, {
+   //         "commodityName": "货物可乐",
+   //         "commodityAmount": "12345.80",
+   //         "commodityTax": "0.00"
+   //       }, {
+   //         "commodityName": "货物可乐",
+   //         "commodityAmount": "12345.89",
+   //         "commodityTax": "0.03"
+   //       }, {
+   //         "commodityName": "货物可乐",
+   //         "commodityAmount": "12345.80",
+   //         "commodityTax": "0.03"
+   //       }, {
+   //         "commodityName": "货物可乐",
+   //         "commodityAmount": "12345.89",
+   //         "commodityTax": "0.03"
+   //       }
+   //     ],
+   //     "discription": "这是业务描述",
+   //     "project": "这是业务所属项目",
+   //     "identity": 1,
+   //     "whoPays": 1,
+   //     "employeeName": "xiu小明",
+   //     "thirdPartyName": "",
+   //     "reason": 1,
+   //     "id": 53,
+   //     "createdAt": "2018-11-22T03:27:24.640Z",
+   //     "updatedAt": "2018-11-22T03:27:24.640Z"
+   //   },
+   //   "subjects": [
+   //     {
+   //       "subjectName": "应收账款",
+   //       "subjectCode": "1122",
+   //       "amount": "5.15"
+   //     }, {
+   //       "subjectName": "主营业务收入",
+   //       "subjectCode": "5001",
+   //       "amount": "12345.89"
+   //     }, {
+   //       "subjectName": "应交税费 - 增值税 - 销项税",
+   //       "subjectCode": "5001",
+   //       "amount": "0.03"
+   //     }, {
+   //       "subjectName": "主营业务收入",
+   //       "subjectCode": "5001",
+   //       "amount": "12345.80"
+   //     }, {
+   //       "subjectName": "应交税费 - 增值税 - 销项税",
+   //       "subjectCode": "5001",
+   //       "amount": "0.00"
+   //     }
+   //   ],
+   //   "accountingSupervisor": null,
+   //   "bookkeeper": null,
+   //   "cashier": null,
+   //   "auditor": null,
+   //   "id": 7,
+   //   "voucherDate": "2018-11-22T03:14:28.666Z",
+   //   "createdAt": "2018-11-22T03:14:28.666Z",
+   //   "updatedAt": "2018-11-22T03:14:28.666Z"
+   // }
 
     let that = this
 
@@ -298,7 +226,6 @@ export default class Sale extends wepy.page {
         // that.height = res.windowHeight
       }
     })
-
 
 // 函数定义区域 ===================
     // 设置一个基准比例
@@ -328,7 +255,7 @@ export default class Sale extends wepy.page {
     const ctx = wx.createCanvasContext('canvasId')
 
     ctx.setFillStyle('white')
-    ctx.fillRect(cal(0), cal(0), cal(750), cal(120) + (8 + 2 * this.result.CommodityName.length) * cal(36))
+    ctx.fillRect(cal(0), cal(0), cal(750), cal(120) + (7 + this.result.subjects.length) * cal(36))
     ctx.setFillStyle('black')
 
     // 标题
@@ -343,19 +270,19 @@ export default class Sale extends wepy.page {
     ctx.translate(cal(730), cal(70))
     ctx.setFontSize(cal(13))
     ctx.setTextAlign('right')
-    ctx.fillText(year + ' 年 ' + month + ' 月 ' + day + ' 号      记字第 ' + Date.now().toString().substr(6) + (Math.random()* 100).toString().split('.')[0] + ' 号', cal(0), cal(22))
+    ctx.fillText(year + ' 年 ' + month + ' 月 ' + day + ' 号      记字第 ' + this.result.id + ' 号', cal(0), cal(22))
     ctx.setTextAlign('center')
     ctx.setTextAlign('center')
     ctx.setTextAlign('center')
 
     // 表格
     // 外框
+    let row = this.result.subjects.length + 2
     ctx.translate(cal(-710), cal(50))
     ctx.setStrokeStyle('#000')
-    ctx.strokeRect(0, 0, cal(710), cal(36) * (this.result.CommodityName.length * 2  + 3))
+    ctx.strokeRect(0, 0, cal(710), cal(36) * row)
 
     // 内框
-    let row = this.result.CommodityName.length * 2 + 3
     for (let i = 2; i < row - 1; i++) {
       ctx.setStrokeStyle('#999')
       ctx.moveTo(cal(200), cal(36) * i)
@@ -404,30 +331,28 @@ export default class Sale extends wepy.page {
     // 内容部分
     // 摘要内容
     ctx.translate(0, cal(36))
-    lineWrap(ctx, this.result.discription, cal(14), cal(16), cal(160), cal(100), cal(10))
-
-    // 价税合计
-    ctx.fillText('1122', cal(265), cal(24))
-    ctx.fillText('应收账款', cal(395), cal(24))
-    ctx.fillText(this.result.AmountInFiguers, cal(522), cal(24))
+    lineWrap(ctx, this.result.summary, cal(14), cal(16), cal(160), cal(100), cal(10))
 
     // 物品、服务等
-    for (let i = 0; i < this.result.CommodityName.length; i++) {
-      ctx.fillText('5001', cal(265), cal(24) + (1 + 2 * i) * cal(36))
-      ctx.fillText('主营业务收入', cal(395), cal(24) + (1 + 2 * i) * cal(36))
-      ctx.fillText(parseFloat(this.result.CommodityAmount[i].word + '.').toFixed(2), cal(646), cal(24) + (1 + 2 * i) * cal(36))
-
-      ctx.fillText('2221.01.01', cal(265), cal(24) + (2 + 2 * i) * cal(36))
-      lineWrap(ctx, '应交税费 - 增值税 - 销项税', cal(14), cal(14), cal(130), cal(395), cal(2) + (2 + 2 * i) * cal(36) )
-      // ctx.fillText(lineWrap(), cal(395), cal(24) + 2 * cal(36))
-      ctx.fillText(parseFloat(this.result.CommodityTax[i].word + '.').toFixed(2), cal(646), cal(24) + (2 + 2 * i) * cal(36))
+    for (let i = 0; i < this.result.subjects.length; i++) {
+      ctx.fillText(this.result.subjects[i].subjectCode, cal(265), cal(24) + cal(36) * i)
+      if (ctx.measureText(this.result.subjects[i].subjectName).width >= cal(130) * 0.8) {
+        lineWrap(ctx, this.result.subjects[i].subjectName, cal(14), cal(14), cal(130), cal(395), cal(2) + cal(36) * i)
+      } else {
+        ctx.fillText(this.result.subjects[i].subjectName, cal(395), cal(24) + cal(36) * i)
+      }
+      if (i === 0) {
+        ctx.fillText(this.result.subjects[i].amount, cal(522), cal(24) + cal(36) * i)
+      } else {
+        ctx.fillText(this.result.subjects[i].amount, cal(646), cal(24) + cal(36) * i)
+      }
     }
 
     // 合计
-    ctx.translate(0, cal(36) * (this.result.CommodityName.length * 2 + 1))
+    ctx.translate(0, cal(36) * (this.result.subjects.length))
     ctx.fillText('合计', cal(230), cal(24))
-    ctx.fillText(this.result.AmountInFiguers, cal(522), cal(24))
-    ctx.fillText(this.result.AmountInFiguers, cal(646), cal(24))
+    ctx.fillText(this.result.invoice.amountInFiguers, cal(522), cal(24))
+    ctx.fillText(this.result.invoice.amountInFiguers, cal(646), cal(24))
 
     // 信息栏
     ctx.beginPath()
@@ -461,27 +386,27 @@ export default class Sale extends wepy.page {
     ctx.moveTo(cal(190), 0)
     ctx.lineTo(cal(190), cal(36))
     let title = ['记账', '出纳', '审核', '制单']
-    for (let i = 0; i < 4; i++) {
-      ctx.fillText(title[i], cal(190 + 130 * i + 25), cal(24) )
-      ctx.moveTo(cal(190 + 130 * i + 50), 0)
-      ctx.lineTo(cal(190 + 130 * i + 50), cal(36))
-      ctx.moveTo(cal(190 + 130 * i + 130), 0)
-      ctx.lineTo(cal(190 + 130 * i + 130), cal(36))
+    for (let i = 1; i <= 4; i++) {
+      ctx.fillText(title[i - 1], cal(190 + 130 * (i - 1) + 25), cal(24) )
+      ctx.moveTo(cal(190 + 130 * (i - 1) + 50), 0)
+      ctx.lineTo(cal(190 + 130 * (i - 1) + 50), cal(36))
+      ctx.moveTo(cal(190 + 130 * (i - 1) + 130), 0)
+      ctx.lineTo(cal(190 + 130 * (i - 1) + 130), cal(36))
     }
     ctx.stroke()
 
-    ctx.fillText(this.$parent.globalData.userInfo.nickName, cal(190 + 130 * 3 + 90), cal(24))
-    ctx.fillText(this.result.InvoiceNum, cal(582), cal(24) + cal(36) * 3)
-    this.result.belongProject && ctx.fillText(this.result.belongProject, cal(228), cal(24) + cal(36) * 3)
-    ctx.fillText(this.result.PurchaserName, cal(228), cal(24) + cal(36))
+    ctx.fillText(this.result.preparedBy, cal(190 + 130 * 3 + 90), cal(24))
+    ctx.fillText(this.result.invoice.invoiceNum, cal(582), cal(24) + cal(36) * 3)
+    this.result.project && ctx.fillText(this.result.project, cal(228), cal(24) + cal(36) * 3)
+    ctx.fillText(this.result.client, cal(228), cal(24) + cal(36))
 
     ctx.draw(true, () => {
-      that.imageHeight = cal(120) + (8 + 2 * this.result.CommodityName.length) * cal(36)
+      that.imageHeight = cal(120) + (7 + this.result.subjects.length) * cal(36)
       wx.canvasToTempFilePath({
           x: 0,
           y: 0,
           width: cal(750),
-          height: cal(120) + (8 + 2 * this.result.CommodityName.length) * cal(36),
+          height: cal(120) + (7 + this.result.subjects.length) * cal(36),
           fileType: 'jpg',
           quality: 0.5,
           canvasId: 'canvasId',//canvasId和标签里面的id对应

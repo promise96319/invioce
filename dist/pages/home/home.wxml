@@ -1,10 +1,38 @@
 
-  <view class="container">
-    <view class="userinfo" bindtap="handleViewTap">
-      <image class="userinfo-avatar" src="{{ userInfo.avatarUrl }}" background-size="cover"/>
-      <view class="userinfo-nickname">{{ userInfo.nickName }}</view>
-    </view>
-
-    <button class="tel-btn plain" open-type="getPhoneNumber" bindgetphonenumber="getPhoneNumber" disabled>电话授权(暂无功能)</button>
-    <button class="company-btn selected" bindtap="goToCompanyInfo">已绑定的公司</button>
+<view class="container">
+  <!-- <view wx:if="{{ !userInfo }}"> -->
+  <view>
+    <image src="../../assets/images/logo.png" class="logo-img"/>
   </view>
+  <!-- <view wx:else class="userinfo">
+    <image class="userinfo-avatar" src="{{ userInfo.avatarUrl }}" background-size="cover" />
+    <view class="userinfo-nickname">{{ userInfo.nickName }}</view>
+  </view> -->
+
+  <view class="company-container"  wx:for="{{ company }}" wx:key="index">
+      <van-button plain type="default" bindtap="showPopup" class="{{ currentIndex === index ? 'active-btn' : '' }}" data-wpyshowpopup-a="{{ index }}">
+        {{ item.name }}
+      </van-button>
+  </view>
+
+  <van-button  wx:if="{{ userInfo }}" bindtap="handleAddCompany" size="large" class="login-button">绑定新公司</van-button>
+  <van-button plain type="default" wx:elif="{{ canIUse }}" open-type="getUserInfo" bindgetuserinfo="bindGetUserInfo" class="login-button">绑定新公司</van-button>
+  <view wx:else>请升级微信版本</view>
+
+  <van-popup show="{{ show }}"  bind:close="hidePopup" position="bottom">
+    <view class="popup-container">
+      <van-group>
+        <van-cell title="拍照识别" clickable="clickable" bindclick="getPhoto" data-wpygetphoto-a="camera"/>
+        <van-cell title="选择照片识别" clickable="clickable" bindclick="getPhoto" data-wpygetphoto-a="album"/>
+        <van-cell title="自行录入" clickable="clickable" bindclick="writeBySelf"/>
+      </van-group>
+    </view>
+    <view class="divive-gap"/>
+    <view class="popup-container">
+      <van-group>
+        <van-cell title="编辑" clickable="clickable" bindclick="handleEditCompany"/>
+        <van-cell title="删除" clickable="clickable" bindclick="handleDeleteCompany"/>
+      </van-group>
+    </view>
+  </van-popup>
+</view>

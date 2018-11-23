@@ -1,0 +1,129 @@
+<style lang="less">
+  .logo-img {
+    width: 378rpx;
+    height: 126rpx;
+    margin-top: 321rpx;
+  }
+
+  .login-button[type=primary] {
+    width: 600rpx;
+    position: absolute;
+    bottom: 60rpx;
+    background-color: #55ACEE;
+    font-family: PingFang-SC-Regular;
+    font-size: 36rpx;
+    font-weight: 400;
+  }
+
+  .step {
+    width: 100%;
+  }
+
+</style>
+
+<template>
+  <view class="container">
+    <image src="../../assets/images/logo.png" class="logo-img"></image>
+    <button type="primary" wx:if="{{canIUse}}" open-type="getUserInfo" @getuserinfo="bindGetUserInfo" class="login-button">授权登录</button>
+    <view wx:else>请升级微信版本</view>
+    <van-steps
+    class="step"
+    steps="{{ steps }}"
+    active="{{ active }}"
+  />
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import config from '../../config/config'
+
+  export default class Login extends wepy.page {
+    config = {
+      navigationBarTitleText: '',
+      usingComponents: {
+        "van-button": "/components/van/button/index",
+        "van-steps": "/components/van/steps/index"
+      },
+    }
+
+    data = {
+      canIUse: wx.canIUse('button.open-type.getUserInfo'),
+      steps: [
+     {
+       text: '步骤一',
+       desc: '描述信息'
+     },
+     {
+       text: '步骤二',
+       desc: '描述信息'
+     },
+     {
+       text: '步骤三',
+       desc: '描述信息'
+     },
+     {
+       text: '步骤四',
+       desc: '描述信息'
+     },
+     {
+       text: '步骤四',
+       desc: '描述信息'
+     }
+   ],
+   active: 2
+    }
+
+    methods = {
+      next () {
+                if (this.current == 3) {
+                    this.current = 0;
+                } else {
+                    this.current += 1;
+                }
+            }
+    }
+
+    onLoad () {
+      let _self = this
+
+      // wx.login({
+      // success: function(res) {
+      //     if (res.code) {
+      //       console.log('https://api.weixin.qq.com/sns/jscode2session?appid=' + config.APPID + '&secret=' + config.SECRET + '&js_code=JSCODE&grant_type=authorization_code',);
+      //       //发起网络请求
+      //       wx.request({
+      //         url: 'https://api.weixin.qq.com/sns/jscode2session?appid=' + config.APPID + '&secret=' + config.SECRET + '&js_code=' + res.code + '&grant_type=authorization_code',
+      //         success(data) {
+      //           console.log(data);
+      //         }
+      //       })
+      //     } else {
+      //       console.log('登录失败！' + res.errMsg)
+      //     }
+      //   }
+      // })
+
+      // 查看是否授权(如果授权则直接登录)
+      wx.getSetting({
+        success (res){
+          if (res.authSetting['scope.userInfo']) {
+            // 已经授权，可以直接调用 getUserInfo 获取头像昵称
+            wx.getUserInfo({
+              success: function(res) {
+                _self.$parent.globalData.userInfo = res.userInfo
+                // console.log(res.userInfo);
+                wx.redirectTo({url: '../home/home'})
+              }
+            })
+          }
+        }
+      })
+    }
+
+    bindGetUserInfo (e) {
+      this.$parent.globalData.userInfo = e.detail.userInfo
+      wx.navigateTo({url: '../home/home'})
+    }
+  }
+</script>

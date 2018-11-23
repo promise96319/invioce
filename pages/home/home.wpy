@@ -1,0 +1,102 @@
+<style lang="less">
+  .container {
+  }
+
+  .userinfo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .userinfo-avatar {
+    margin-top: 200rpx;
+    width: 260rpx;
+    height: 260rpx;
+    border-radius: 50%;
+  }
+
+  .userinfo-nickname {
+    margin-top: 30rpx;
+    font-size: 36rpx;
+    font-family: PingFang-SC-Regular;
+    font-weight: 400;
+    color: rgba(71,71,71,1);
+  }
+
+  .company-btn,
+  .tel-btn {
+    position: absolute;
+    width: 600rpx;
+    height: 80rpx;
+    line-height: 80rpx;
+    margin-top: 20rpx;
+    font-size: 36rpx;
+    font-family: PingFang-SC-Regular;
+    font-weight: 400;
+  }
+
+  .company-btn {
+    bottom: 60rpx;
+  }
+
+  .tel-btn {
+    bottom: 160rpx;
+  }
+
+  .plain {
+    background-color: #fff;
+    color: #55ACEE;
+    border: 1px solid rgba(85,172,238,1);
+  }
+
+  .selected {
+    background-color: #55ACEE;
+    color: #fff;
+  }
+
+</style>
+
+<template>
+  <view class="container">
+    <view class="userinfo" @tap="handleViewTap">
+      <image class="userinfo-avatar" src="{{ userInfo.avatarUrl }}" background-size="cover"/>
+      <view class="userinfo-nickname">{{ userInfo.nickName }}</view>
+    </view>
+
+    <button class="tel-btn plain" open-type="getPhoneNumber" @getphonenumber="getPhoneNumber" disabled>电话授权(暂无功能)</button>
+    <button class="company-btn selected" @tap="goToCompanyInfo">已绑定的公司</button>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+
+  export default class CompanyInfo extends wepy.page {
+    config = {
+      navigationBarTitleText: '主页'
+    }
+
+    data = {
+      userInfo: {
+        nickName: '加载中...',
+      },
+    }
+
+    methods = {
+      goToCompanyInfo () {
+        wx.navigateTo({
+          url: '../company/companyInfo'
+        })
+      }
+    }
+
+    async onLoad() {
+      await wx.login()
+      this.userInfo = this.$parent.globalData.userInfo
+    }
+
+    getPhoneNumber (e) {
+
+    }
+  }
+</script>

@@ -9,7 +9,7 @@
 	},
 	"compileType": "miniprogram",
 	"appid": "wx3006c281c28c3c7d",
-	"projectname": "fapiaoshibie",
-	"miniprogramRoot": "./dist",
+	"projectname": "invoiceStyle",
+	"miniprogramRoot": "dist/",
 	"condition": {}
 }

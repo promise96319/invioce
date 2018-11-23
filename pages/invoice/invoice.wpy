@@ -1,0 +1,248 @@
+<style lang="less">
+  .container {
+    margin-bottom: 200rpx;
+  }
+
+  .choose-title {
+    margin-top: 200rpx;
+    margin-bottom: 50rpx;
+    font-size: 36rpx;
+    font-family: PingFang-SC-Medium;
+    font-weight: 400;
+    color: rgba(71,71,71,1);
+    text-align: center;
+  }
+
+  button[plain] {
+    width: 364rpx;
+    height: 80rpx;
+    line-height: 80rpx;
+    margin-bottom: 20rpx;
+    background: rgba(255,255,255,1);
+    border: 1rpx solid rgba(204,204,204,1);
+    border-radius: 8rpx;
+    font-size: 24rpx;
+    font-family: PingFang-SC-Regular;
+    font-weight: 400;
+    color: rgba(71,71,71,1);
+  }
+
+  .selected[plain] {
+    border: none;
+    color: #fff;
+    background-color: #55ACEE;
+  }
+
+  .get-msg {
+    position: fixed;
+    bottom: 60rpx;
+  }
+
+  .get-msg button[plain]{
+    width: 600rpx;
+    height: 80rpx;
+    font-size: 36rpx;
+  }
+
+  .get-msg .write[plain] {
+    color: #55ACEE;
+    border-color: #55ACEE;
+  }
+
+</style>
+
+<template>
+  <view class="container">
+    <view class="choose-company">
+      <view class="choose-title">
+        请选择公司
+      </view>
+
+      <view class="choose-container">
+        <button plain wx:for="{{ companies }}" wx:key="index" @tap="toggleSelectCompany({{ index }})" class="{{ index === currentIndex ? 'selected' : '' }}">
+          {{ item.companyName }}
+        </button>
+      </view>
+    </view>
+
+    <view class="get-msg">
+      <button plain class="selected" @tap="getPhoto">
+        点击拍照或者选取照片
+      </button>
+      <button plain class="write" @tap="writeBySelf">
+        自行录入
+      </button>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+
+  export default class Home extends wepy.page {
+    config = {
+      navigationBarTitleText: '发票验证'
+    }
+
+    data = {
+      userInfo: {
+        nickName: '加载中...',
+      },
+      companies: [
+      ],
+      currentIndex: 0,
+    }
+
+    methods = {
+      // 切换公司
+      toggleSelectCompany (index) {
+        this.currentIndex = index
+      },
+      // 调用拍照或者选取照片接口
+      getPhoto () {
+        let that = this
+        wx.chooseImage({
+          count: 1,
+          sizeType: 'original',
+          sourceType: ['camera', 'album'],
+          success (res) {
+            wx.showToast({
+              title: '正在识别...',
+              icon: 'loading',
+              mask: true,
+              duration: 60000
+            })
+            wx.getFileSystemManager().readFile({
+              filePath: res.tempFilePaths[0], //选择图片返回的相对路径
+              encoding: 'base64', //编码格式
+              success: res2 => { //成功的回调
+                that.handleIdentifyInvoice(res2.data)
+              }
+            })
+          }
+        })
+      },
+    }
+
+    // 获取access_token
+    handleIdentifyInvoice (base64) {
+      let that = this
+      wx.request({
+        url: 'https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=UVVOjbGt1XpSR9cW6GCSh77t&client_secret=mwHCmi819kPcVlOn7r8XAbnerudcOGwB&',
+        method: 'POST',
+        success (res) {
+          that.getInvoiceData(res.data.access_token, base64)
+        },
+        fail (err) {
+          console.log(err);
+        }
+      })
+    }
+
+    // 根据access_token 调用百度云发票识别接口
+    getInvoiceData (access_token, base64) {
+      let that = this
+      wx.request({
+        url: 'https://aip.baidubce.com/rest/2.0/ocr/v1/vat_invoice?access_token=' + access_token,
+        data: {
+          image: base64,
+          detect_direction: true
+        },
+        header: {
+              'content-type': 'application/x-www-form-urlencoded'
+        },
+        method: 'POST',
+        success: (res) => {
+          if (res.data.words_result) {
+            wx.hideToast()
+            wx.navigateTo({url: '../message/message?message=' + JSON.stringify(res.data.words_result) + '&company=' + JSON.stringify(that.companies[that.currentIndex])})
+          }
+          else {
+            wx.hideToast()
+            wx.showModal({
+              title: '识别失败',
+              content: '未能识别出发票信息',
+              confirmText: '自行录入',
+              cancelText: '重选照片',
+              success (res) {
+                if (res.confirm) {
+                  that.writeBySelf()
+                } else if (res.cancel) {
+
+                }
+              }
+            })
+          }
+        },
+        fail: (err) => {
+          wx.hideToast()
+          wx.showToast({
+            icon: 'none',
+            title: '识别失败，请重新上传照片',
+            duration: 2000
+          })
+          console.log(err)
+        }
+      })
+    }
+
+    // 自行录入
+    writeBySelf () {
+      let message = {
+        AmountInFiguers: "",
+        AmountInWords: "",
+        CheckCode: "",
+        Checker: "",
+        CommodityAmount: [],
+        CommodityName: [
+        ],
+        CommodityNum: [],
+        CommodityPrice: [],
+        CommodityTax: [
+        ],
+        CommodityTaxRate: [],
+        CommodityType: [],
+        CommodityUnit: [],
+        InvoiceCode: "",
+        InvoiceDate: "",
+        InvoiceNum: "",
+        InvoiceType: "其他发票",
+        NoteDrawer: "",
+        Password: "",
+        Payee: "",
+        PurchaserAddress: "",
+        PurchaserBank: "",
+        PurchaserName: "",
+        PurchaserRegisterNum: "",
+        Remarks: "",
+        SellerAddress: "",
+        SellerBank: "",
+        SellerName: "",
+        SellerRegisterNum: "",
+        TotalAmount: "",
+        TotalTax: "",
+      }
+      wx.navigateTo({url: '../message/message?message=' + JSON.stringify(message) + '&company=' + JSON.stringify(this.companies[this.currentIndex])})
+    }
+
+    async onLoad(options) {
+      this.companies = JSON.parse(options.companies)
+      // this.companies = [{
+      //   companyName: '有方教育0',
+      //   personName: 'embark',
+      //   isTaxPerson: true,
+      //   personNum: '1213',
+      //   personTelNum: '13012345678'
+      // },
+      // {
+      //   companyName: '有方教育1',
+      //   personName: 'embark',
+      //   isTaxPerson: true,
+      //   personNum: '1213',
+      //   personTelNum: '13012345678'
+      // }],
+      await wx.login()
+      this.userInfo = this.$parent.globalData.userInfo
+    }
+  }
+</script>

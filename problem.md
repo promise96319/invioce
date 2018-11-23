@@ -1,10 +1,92 @@
-几点问题：
-1. 税收查询无相关接口，因此无法直接通过公司得到，需用户自行查询（增添进入该查询网页的入口）。
-2. 手机号获取需要进行过认证的非个人的微信公众号。
+//个人信息
+{
+  avatarUrl: "",
+  city: "",
+  country: "",
+  gender: 1,
+  language: "zh_CN",
+  nickName: "c",
+  province: "",
+  phoneNumber: ""
+}
 
-3. 识别速度问题，识别过程比较漫长，电脑识别大概4-7秒，手机7-10秒（网速快慢会影响识别速度）。
-4. 凭证有时不能一次生成成功是指
+//公司信息
+{
+  weChatID: '',
+  [
+    {
+      companyName: '',
+      taxPersonNum: '',
+      personName: '',
+      personTelNum: '',
+      isTaxPerson: ''
+    },
+    {
+      companyName: '',
+      taxPersonNum: '',
+      personName: '',
+      personTelNum: '',
+      isTaxPerson: ''
+    }
+  ]
+}
 
-5. 项目描述中可能存在多种原因，如团建（员工福利）、出差（员工出差费用），那么该笔业务的产生原因的选择是多选还是单选？
-6. 科目代码和科目名称根据 "关键字" 及 "备注" 的配对规则获取，这里是取并集吗？另外，如果查询不到该如何显示科目代码和名称？
-7. 第9.6条中的“如果科目为员工福利或者招待费用”是根据配对后得到的科目名称来判断的吗？还是说它跟用户选择的业务产生原因中的员工福利或者业务招待有关？
+//发票信息
+{
+  companyID: '',
+  //下面是发票识别的内容
+  PurchaserName: '',
+  SellerName: '',
+  InvoiceType: '',
+  InvoiceDate: '',
+  InvoiceNum: '',
+  ServiceDetail: [
+    {
+      CommodityName: '',
+      CommodityAmount: '',
+      CommodityTax: ''
+    },
+    {
+      CommodityName: '',
+      CommodityAmount: '',
+      CommodityTax: ''
+    },
+  ],
+  AmountInFiguers: '', //价税合计
+  //下面是补充的内容
+  discription: '', //业务描述
+  belongProject: '', //所属项目（可选）
+  isTaxPerson: false, //一般纳税人资格状态
+  identity: '购买者', //所属身份
+  pay: '', //由谁支付
+  personName: '', //或者是 otherName: ''
+  source: '', //业务产生原因
+}
+
+{
+"SellerName": "北京冠月餐饮管理有限公司",
+serviceDetail: [
+  {
+    commodityName: '餐饮',
+    commodityAmount: '23',
+    commodityTax: '24'
+  },
+  {
+    commodityName: '火车',
+    commodityAmount: '23',
+    commodityTax: '24'
+  },
+],
+"InvoiceDate": "2323u37",
+"InvoiceNum": "2323u37",
+"PurchaserName": "上海有略教育科技有限公司",
+"AmountInFiguers": "19766.00",
+"InvoiceType": "专用发票",
+"identity": "购买方",
+"pay": "业务招待",
+"source": "公司员工",
+"personName": "张三啊",
+"otherName": "张三啊",
+"discription": "漆黑空心也想被释放，奈何思恋比恨更顽强。你也不必牵强再说爱我，反正我的灵魂已片片凋落",
+"belongProject": "天地大同",
+}

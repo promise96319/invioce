@@ -1,0 +1,297 @@
+<style lang="less">
+.container {
+  width: 100%;
+  margin-top: 40rpx;
+}
+
+.query-btn {
+  margin-top: 40rpx;
+}
+
+.company-detail {
+  margin-top: 40rpx;
+  width: 100%;
+}
+
+.save-btn button {
+  margin-top: 120rpx;
+  width: 600rpx;
+  border: none;
+  background-color: #55ACEE;
+  color: #fff;
+}
+
+.select-company-btn button {
+  width: 100%;
+  border: none;
+}
+
+.van-switch {
+  height: 60rpx;
+  font-size: 30rpx;
+}
+
+.query-btn button {
+  border-color: #55ACEE;
+  color: #55ACEE;
+}
+
+</style>
+
+<template>
+  <view class="container">
+    <van-cell-group class="company-detail">
+      <van-field
+        value="{{ company.name }}"
+        required
+        clearable
+        use-button-slot
+        label="公司名称"
+        placeholder="请输入公司名称(或关键字)"
+        @change="handleInput('name')"
+      >
+        <van-button slot="button" size="small" plain class="query-btn" bind:click="handleGetRegisterNum">
+          查询
+        </van-button>
+      </van-field>
+      <van-field
+        value="{{ company.registerNum }}"
+        clearable
+        label="纳税人识别号"
+        placeholder="请输入纳税人识别号"
+        @change="handleInput('registerNum')"
+      />
+      <van-field
+        value="{{ company.contactName }}"
+        required
+        clearable
+        label="联系人姓名"
+        placeholder="请输入联系人姓名"
+        @change="handleInput('contactName')"
+      />
+      <van-field
+        value="{{ company.contactPhone }}"
+        required
+        clearable
+        type="number"
+        label="联系人电话"
+        placeholder="请输入联系人电话"
+        @change="handleInput('contactPhone')"
+      />
+
+      <van-cell title="一般纳税人资格状态" bind:click="toggleTaxPerson">
+        <van-switch
+          size="22px"
+          checked="{{ company.registerQualificationStatus }}"
+          active-color="#55ACEE"
+          inactive-color="#fff"
+        />
+      </van-cell>
+    </van-cell-group>
+
+    <van-button plain size="large" @tap="handleSave" class="save-btn">
+      保存
+    </van-button>
+
+    <van-popup
+    show="{{ showCompanyResult }}"
+    bind:close="handleHideCompanyResult"
+    bind:click-overlay="handleClosePopup"
+    position="bottom"
+    close-on-click-overlay="{{ false }}">
+      <view wx:for="{{ searchCompanyResult }}" wx:key="index" @tap="chooseRegisterNumn({{ index }})">
+        <van-cell-group>
+          <van-field
+            value="{{ item.unitName }}"
+            disabled
+            border="{{ false }}"
+            label="公司名称"
+          />
+          <van-field
+            value="{{ item.unitTaxNo }}"
+            disabled
+            label="纳税人识别号"
+          />
+        </van-cell-group>
+      </view>
+    </van-popup>
+
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { URL } from '../../constant/constant'
+
+  export default class Company extends wepy.page {
+    config = {
+      navigationBarTitleText: '编辑公司信息',
+      usingComponents: {
+        "van-button": "/components/van/button/index",
+        "van-popup": "/components/van/popup/index",
+        "van-switch": "/components/van/switch/index",
+        "van-field": "/components/van/field/index",
+        "van-cell": "/components/van/cell/index",
+        "van-cell-group": "/components/van/cell-group/index",
+        "van-radio": "/components/van/radio/index",
+        "van-radio-group": "/components/van/radio-group/index",
+      },
+    }
+
+    data = {
+      company: {},
+      // 用于确定是增加还是编辑
+      currentType: '',
+      currentIndex: '',
+      searchCompanyResult: [],
+      showCompanyResult: false,
+    }
+
+    methods = {
+      handleInput (type, e) {
+        this.company[type] = e.detail
+      },
+      handleGetRegisterNum () {
+        const _self = this
+        if (!_self.company.name) {
+          return wx.showModal({
+            title: '温馨提示',
+            content: '请先填写公司名称(或关键字)，再点击此处一键获取纳税人识别号~',
+            confirmText: '知道了',
+            showCancel: false,
+          })
+        }
+        wx.showToast({
+          title: '正在查询...',
+          icon: 'loading',
+          mask: true
+        })
+        wepy.request({
+              url: URL.getInvoiceInfo,
+              data: {"name": _self.company.name},
+              method: 'POST',
+              header: {Authorization: 'APPCODE f27eb1070a9f4ad9bc7a3f92c0963d15'}
+         })
+         .then((res) => {
+            wx.hideToast()
+            if (!res.data.data && !res.data.data.length) {
+              return wx.showModal({
+                title: '纳税人识别号获取失败！',
+                content: `无法获取${_self.company.name}的纳税人识别号，请确保公司名称填写正确`,
+                icon: 'none',
+                showCancel: false,
+              })
+            }
+            _self.searchCompanyResult = res.data.data,
+            _self.showCompanyResult = true
+            _self.$apply()
+          })
+      },
+      handleHideCompanyResult () {
+        this.showCompanyResult = false
+        this.$apply()
+      },
+      handleClosePopup () {
+        const _self = this
+        wx.showModal({
+          title: '是否放弃选择公司？',
+          success(res) {
+            if (res.confirm) {
+              _self.showCompanyResult = false
+              _self.$apply()
+            }
+          }
+        })
+      },
+      chooseRegisterNumn (index) {
+        const _self = this
+        wx.showModal({
+          content: `您当前选择的公司是：${_self.searchCompanyResult[index].unitName}`,
+          success(res) {
+            if (res.confirm) {
+              _self.company.registerNum = _self.searchCompanyResult[index].unitTaxNo
+              _self.company.name = _self.searchCompanyResult[index].unitName
+              _self.showCompanyResult = false
+              _self.$apply()
+            }
+          }
+        })
+      },
+      toggleTaxPerson () {
+        this.company.registerQualificationStatus = !this.company.registerQualificationStatus
+      },
+      async handleSave () {
+        if (!this.company.name) {
+          wx.showToast({
+            title: '请填写公司名称',
+            icon: 'none',
+          })
+          return
+        }
+
+        if (!this.company.contactName) {
+          wx.showToast({
+            title: '请填写联系人姓名',
+            icon: 'none',
+          })
+          return
+        }
+
+        if (!this.company.contactPhone) {
+          wx.showToast({
+            title: '请填写联系人手机号',
+            icon: 'none',
+          })
+          return
+        }
+
+        if (!this.company.registerQualificationStatus && this.company.registerQualificationStatus !== false) {
+          wx.showToast({
+            title: '请选择一般纳税人资格状态',
+            icon: 'none',
+          })
+          return
+        }
+
+        if (!(/^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(17[0,3,5-8])|(18[0-9])|166|198|199|(147))\d{8}$/.test(this.company.contactPhone))) {
+          wx.showToast({
+            title: '联系人手机号格式不正确',
+            icon: 'none',
+          })
+          return
+        }
+
+        const { data } = await wepy.request({
+            url: URL[this.currentType + 'Company'],
+            method: 'POST',
+            data: {
+              no: wepy.$store.getState().userInfo.no,
+              ...this.company
+            }
+          })
+        wepy.$store.dispatch({
+          type: 'UPDATECOMPANY',
+          payload: data
+        })
+
+        wx.showToast({
+          title: '保存成功',
+          icon: 'success',
+          mask: true
+        })
+
+        setTimeout(() => {
+          wx.navigateBack({
+            delta: 1
+          })
+        }, 1500)
+      }
+    }
+
+    onLoad (options) {
+       this.company = options.company ? JSON.parse(options.company) : {registerQualificationStatus: true}
+       this.currentType = options.type
+       this.currentIndex = options.index >= 0 ? options.index : -1
+    }
+  }
+</script>

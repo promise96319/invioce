@@ -13,32 +13,33 @@
 import wepy from 'wepy'
 import 'wepy-async-function'
 
+import { setStore } from 'wepy-redux'
+import configStore from './store'
+
+const store = configStore()
+setStore(store)
+
+wepy.$store = store
+
 export default class extends wepy.app {
   config = {
     pages: [
-      'pages/login/login', //授权登录
-      'pages/home/home', //主页
-      'pages/company/companyInfo',  //绑定公司信息
-      'pages/invoice/invoice',  //发票识别
-      'pages/message/message', //发票是识别后的信息展示
+      'pages/home/home',
+      'pages/company/company',
+      'pages/invoice/invoice', //发票是识别后的信息展示
+      'pages/notax/notax', //不用税收时的凭证
       'pages/purchase/purchase', //为购买者时的凭证
       'pages/sale/sale', //为销售者时的凭证
-      'pages/notax/notax', //不用税收时的凭证
-      'pages/query/query', //外接税务查询网页
     ],
     window: {
       backgroundTextStyle: 'light',
       navigationBarBackgroundColor: '#fff',
       navigationBarTitleText: 'WeChat',
-      navigationBarTextStyle: 'black'
+      navigationBarTextStyle: 'black',
     }
   }
 
   globalData = {
-    // userInfo: null
-    userInfo: {
-      nickName: '测试名称'
-    }
   }
 
   constructor () {

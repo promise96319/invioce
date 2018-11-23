@@ -11,6 +11,6 @@
 
   <view class="confirm-container">
     <button plain bindtap="hanldeSavePic" class="save-pic">保存</button>
-    <button plain bindtap="handleCancel">取消</button>
+    <button plain bindtap="handleCancel">回到主页</button>
   </view>
 </view>
