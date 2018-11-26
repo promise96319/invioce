@@ -81,9 +81,6 @@ export default class Sale extends wepy.page {
   config = {
     navigationBarTitleText: '凭证'
   }
-  components = {
-
-  }
 
   data = {
     width: 0,
@@ -133,88 +130,88 @@ export default class Sale extends wepy.page {
        icon: 'loading',
        duration: 10000
      })
-    this.result = JSON.parse(options.result)
-   //  this.result = {
-   //   "summary": "这是业务描述",
-   //   "preparedBy": "c",
-   //   "client": "个",
-   //   "supplier": "广东苏宁云商磷售有限公司",
-   //   "project": "这是业务所属项目",
-   //   "employeeName": "xiu小明",
-   //   "thirdPartyName": "",
-   //   "invoice": {
-   //     "purchaserName": "航天信息份有限公司",
-   //     "sellerName": "航天信息股份有限公司",
-   //     "invoiceType": 0,
-   //     "invoiceNum": "00593803",
-   //     "invoiceDate": "2014-12-31T16:00:00.000Z",
-   //     "amountInFiguers": "5.15",
-   //     "serviceDetail": [
-   //       {
-   //         "commodityName": "货物可乐",
-   //         "commodityAmount": "12345.89",
-   //         "commodityTax": "0.03"
-   //       }, {
-   //         "commodityName": "货物可乐",
-   //         "commodityAmount": "12345.80",
-   //         "commodityTax": "0.00"
-   //       }, {
-   //         "commodityName": "货物可乐",
-   //         "commodityAmount": "12345.89",
-   //         "commodityTax": "0.03"
-   //       }, {
-   //         "commodityName": "货物可乐",
-   //         "commodityAmount": "12345.80",
-   //         "commodityTax": "0.03"
-   //       }, {
-   //         "commodityName": "货物可乐",
-   //         "commodityAmount": "12345.89",
-   //         "commodityTax": "0.03"
-   //       }
-   //     ],
-   //     "discription": "这是业务描述",
-   //     "project": "这是业务所属项目",
-   //     "identity": 1,
-   //     "whoPays": 1,
-   //     "employeeName": "xiu小明",
-   //     "thirdPartyName": "",
-   //     "reason": 1,
-   //     "id": 53,
-   //     "createdAt": "2018-11-22T03:27:24.640Z",
-   //     "updatedAt": "2018-11-22T03:27:24.640Z"
-   //   },
-   //   "subjects": [
-   //     {
-   //       "subjectName": "应收账款",
-   //       "subjectCode": "1122",
-   //       "amount": "5.15"
-   //     }, {
-   //       "subjectName": "主营业务收入",
-   //       "subjectCode": "5001",
-   //       "amount": "12345.89"
-   //     }, {
-   //       "subjectName": "应交税费 - 增值税 - 销项税",
-   //       "subjectCode": "5001",
-   //       "amount": "0.03"
-   //     }, {
-   //       "subjectName": "主营业务收入",
-   //       "subjectCode": "5001",
-   //       "amount": "12345.80"
-   //     }, {
-   //       "subjectName": "应交税费 - 增值税 - 销项税",
-   //       "subjectCode": "5001",
-   //       "amount": "0.00"
-   //     }
-   //   ],
-   //   "accountingSupervisor": null,
-   //   "bookkeeper": null,
-   //   "cashier": null,
-   //   "auditor": null,
-   //   "id": 7,
-   //   "voucherDate": "2018-11-22T03:14:28.666Z",
-   //   "createdAt": "2018-11-22T03:14:28.666Z",
-   //   "updatedAt": "2018-11-22T03:14:28.666Z"
-   // }
+    // this.result = JSON.parse(options.result)
+    this.result = {
+     "summary": "这是业务描述",
+     "preparedBy": "c",
+     "client": "个",
+     "supplier": "广东苏宁云商磷售有限公司",
+     "project": "这是业务所属项目",
+     "employeeName": "xiu小明",
+     "thirdPartyName": "",
+     "invoice": {
+       "purchaserName": "航天信息份有限公司",
+       "sellerName": "航天信息股份有限公司",
+       "invoiceType": 0,
+       "invoiceNum": "00593803",
+       "invoiceDate": "2014-12-31T16:00:00.000Z",
+       "amountInFiguers": "5.15",
+       "serviceDetail": [
+         {
+           "commodityName": "货物可乐",
+           "commodityAmount": "12345.89",
+           "commodityTax": "0.03"
+         }, {
+           "commodityName": "货物可乐",
+           "commodityAmount": "12345.80",
+           "commodityTax": "0.00"
+         }, {
+           "commodityName": "货物可乐",
+           "commodityAmount": "12345.89",
+           "commodityTax": "0.03"
+         }, {
+           "commodityName": "货物可乐",
+           "commodityAmount": "12345.80",
+           "commodityTax": "0.03"
+         }, {
+           "commodityName": "货物可乐",
+           "commodityAmount": "12345.89",
+           "commodityTax": "0.03"
+         }
+       ],
+       "discription": "这是业务描述",
+       "project": "这是业务所属项目",
+       "identity": 1,
+       "whoPays": 1,
+       "employeeName": "xiu小明",
+       "thirdPartyName": "",
+       "reason": 1,
+       "id": 53,
+       "createdAt": "2018-11-22T03:27:24.640Z",
+       "updatedAt": "2018-11-22T03:27:24.640Z"
+     },
+     "subjects": [
+       {
+         "subjectName": "应收账款",
+         "subjectCode": "1122",
+         "amount": "5.15"
+       }, {
+         "subjectName": "主营业务收入",
+         "subjectCode": "5001",
+         "amount": "12345.89"
+       }, {
+         "subjectName": "应交税费 - 增值税 - 销项税",
+         "subjectCode": "5001",
+         "amount": "0.03"
+       }, {
+         "subjectName": "主营业务收入",
+         "subjectCode": "5001",
+         "amount": "12345.80"
+       }, {
+         "subjectName": "应交税费 - 增值税 - 销项税",
+         "subjectCode": "5001",
+         "amount": "0.00"
+       }
+     ],
+     "accountingSupervisor": null,
+     "bookkeeper": null,
+     "cashier": null,
+     "auditor": null,
+     "id": 7,
+     "voucherDate": "2018-11-22T03:14:28.666Z",
+     "createdAt": "2018-11-22T03:14:28.666Z",
+     "updatedAt": "2018-11-22T03:14:28.666Z"
+   }
 
     let that = this
 
@@ -411,10 +408,10 @@ export default class Sale extends wepy.page {
           quality: 0.5,
           canvasId: 'canvasId',//canvasId和标签里面的id对应
           success: (res) => {
-              wx.hideToast()
               //将获取到的图片临时路径set到canvasSaveimg中
               that.tempFilePath = res.tempFilePath
               that.$apply()
+              wx.hideToast()
           },
           fail: (err) => {
             console.log(err);

@@ -27,9 +27,9 @@ export default class extends wepy.app {
       'pages/home/home',
       'pages/company/company',
       'pages/invoice/invoice', //发票是识别后的信息展示
+      'pages/sale/sale', //为销售者时的凭证
       'pages/notax/notax', //不用税收时的凭证
       'pages/purchase/purchase', //为购买者时的凭证
-      'pages/sale/sale', //为销售者时的凭证
     ],
     window: {
       backgroundTextStyle: 'light',
