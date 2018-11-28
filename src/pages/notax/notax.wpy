@@ -89,41 +89,29 @@ export default class Purchase extends wepy.page {
     imageHeight: 0,
   }
 
-  computed = {}
-
   methods = {
-    hanldeSavePic () {
-      let _self = this
-          wx.getImageInfo({
-            src: _self.tempFilePath,
-            success (res1) {
-              wx.saveImageToPhotosAlbum({
-                  filePath: res1.path,
-                  success: function (res2) {
-                    wx.showToast({
-                      title: '保存成功',
-                    })
-                    setTimeout(() => {
-                      wx.redirectTo({
-                        url: '../home/home'
-                      })
-                    }, 1500)
-                  },
-                  fail: function (err) {
-                    console.log(err)
-                  }
-              })
-            }
-      })
+    async hanldeSavePic () {
+      const { path } = await wepy.getImageInfo({src: this.tempFilePath})
+      const { errMsg } = await wepy.saveImageToPhotosAlbum({filePath: path})
+      if (errMsg === 'saveImageToPhotosAlbum:ok') {
+        wx.showToast({
+          title: '保存成功',
+        })
+        setTimeout(() => {
+          wx.navigateBack({
+            delta: 1
+          })
+        }, 1500)
+      }
     },
     handleCancel () {
-      wx.redirectTo({
-        url: '../home/home'
+      wx.navigateBack({
+        delta: 1
       })
     }
   }
 
-   onLoad(options) {
+  async onLoad(options) {
      wx.showToast({
        title: '正在生成凭证',
        icon: 'loading',
@@ -224,22 +212,16 @@ export default class Purchase extends wepy.page {
     //   "updatedAt": "2018-11-22T03:27:24.649Z"
     // }
 
-    let that = this
-
     // 获取屏幕宽
-    wx.getSystemInfo({
-      success(res) {
-        that.width = res.windowWidth
-        that.$apply()
-        // that.height = res.windowHeight
-      }
-    })
+    const { windowWidth } = await wepy.getSystemInfo()
+    this.width = windowWidth
+    this.$apply()
 
 
 // 函数定义区域 ===================
     // 设置一个基准比例
     let cal = (px) => {
-      return  px / 750 * that.width
+      return  px / 750 * this.width
     }
 
     // canvas换行显示
@@ -357,42 +339,6 @@ export default class Purchase extends wepy.page {
       }
     }
 
-    // for (let i = 0; i < this.result.CommodityName.length; i++) {
-    //   let temp = util(this.result.CommodityName[i].word, this.result.source, this.result.CommodityAmount[i].word)
-    //   ctx.fillText(temp.code, cal(265), cal(24) + i * cal(36))
-    //   if (ctx.measureText(temp.name).width >= 0.9 * cal(130)) {
-    //     lineWrap(ctx, temp.name, cal(14), cal(14), cal(130), cal(395), cal(2) + i * cal(36) )
-    //   } else {
-    //     ctx.fillText(temp.name, cal(395), cal(24) + i * cal(36))
-    //   }
-    //   ctx.fillText(parseFloat(Number(this.result.CommodityAmount[i].word) + Number(this.result.CommodityTax[i].word) + '.').toFixed(2), cal(522), cal(24) + i * cal(36))
-    // }
-
-    // 价税合计
-    // switch (this.result.pay) {
-    //   case '公司':
-    //       ctx.fillText('2202', cal(265), cal(24) + this.result.CommodityName.length * cal(36))
-    //       ctx.fillText('应付账款', cal(395), cal(24) + this.result.CommodityName.length * cal(36))
-    //       ctx.fillText(this.result.AmountInFiguers, cal(646), cal(24) + this.result.CommodityName.length * cal(36))
-    //       break
-    //   case '公司员工':
-    //       ctx.fillText('2241.01', cal(265), cal(24) + this.result.CommodityName.length * cal(36))
-    //       lineWrap(ctx, '其他应付款-员工报销', cal(14), cal(14), cal(130), cal(395), cal(2) + this.result.CommodityName.length * cal(36))
-    //       ctx.fillText(this.result.AmountInFiguers, cal(646), cal(24) + this.result.CommodityName.length * cal(36))
-    //       break
-    //   case '其他第三方':
-    //       ctx.fillText('2241.04', cal(265), cal(24) + this.result.CommodityName.length * cal(36))
-    //       lineWrap(ctx, '其他应付款-其他第三方往来', cal(14), cal(14), cal(130), cal(395), cal(2) + this.result.CommodityName.length * cal(36))
-    //       ctx.fillText(this.result.AmountInFiguers, cal(646), cal(24) + this.result.CommodityName.length * cal(36))
-    //       break
-    //    default:
-    //       ctx.fillText('2202', cal(265), cal(24) + this.result.CommodityName.length * cal(36))
-    //       ctx.fillText('应付账款', cal(395), cal(24) + this.result.CommodityName.length * cal(36))
-    //       ctx.fillText(this.result.AmountInFiguers, cal(646), cal(24) + this.result.CommodityName.length * cal(36))
-    //       break
-    // }
-    //
-    //
     // 合计
     ctx.translate(0, cal(36) * this.result.subjects.length)
     ctx.fillText('合计', cal(230), cal(24))
@@ -450,7 +396,7 @@ export default class Purchase extends wepy.page {
     this.result.thirdPartyName && ctx.fillText(this.result.thirdPartyName, cal(582), cal(24) + cal(36) * 2)
 
     ctx.draw(true, () => {
-      that.imageHeight = cal(120) + (7 + this.result.subjects.length) * cal(36)
+      this.imageHeight = cal(120) + (7 + this.result.subjects.length) * cal(36)
       wx.canvasToTempFilePath({
           x: 0,
           y: 0,
@@ -462,13 +408,19 @@ export default class Purchase extends wepy.page {
           success: (res) => {
               wx.hideToast()
               //将获取到的图片临时路径set到canvasSaveimg中
-              that.tempFilePath = res.tempFilePath
-              that.$apply()
+              this.tempFilePath = res.tempFilePath
+              this.$apply()
           },
           fail: (err) => {
             console.log(err);
           }
       })
+    })
+  }
+
+  onUnload () {
+    wx.navigateBack({
+      delta: 1
     })
   }
 }

@@ -1,0 +1,251 @@
+<style>
+.question {
+  margin-bottom: 80rpx;
+  width: 100%;
+}
+
+.van-cell__title {
+  font-size: 28rpx;
+}
+
+.radio-group {
+  box-sizing: border-box;
+  padding-left: 60rpx;
+}
+
+.make-certificate {
+  width: 600rpx;
+  margin: 80rpx 0 60rpx;
+  border: none;
+  background-color: #55ACEE;
+  color: #fff;
+}
+
+.go-back {
+  width: 600rpx;
+  margin-bottom: 160rpx;
+}
+</style>
+
+<template>
+  <view class="container">
+    <view class="question">
+      <van-cell class="question-title" title="1 .发票由谁支付?" />
+      <view class="radio-group">
+        <van-radio-group value="{{ addtionalMessage.whoPays }}">
+          <van-cell-group>
+            <van-cell title="公司" clickable data-name="{{ PAID_BY_COMPANY }}" bind:click="choosePay">
+              <van-radio name="{{ PAID_BY_COMPANY }}" />
+            </van-cell>
+            <van-cell title="公司员工" clickable data-name="{{ PAID_BY_EMPLOYEE }}" bind:click="choosePay">
+              <van-radio name="{{ PAID_BY_EMPLOYEE }}" />
+            </van-cell>
+            <van-transition show="{{ addtionalMessage.whoPays == PAID_BY_EMPLOYEE }}" name="fade-right">
+              <van-field required clearable value="{{ addtionalMessage.employeeName }}" placeholder="请输入公司员工姓名" border="{{ true }}" bind:change="handlePersonName" />
+            </van-transition>
+            <van-cell title="其他第三方" clickable data-name="{{ PAID_BY_OTHERS }}" bind:click="choosePay">
+              <van-radio name="{{ PAID_BY_OTHERS }}" />
+            </van-cell>
+            <van-transition show="{{ addtionalMessage.whoPays == PAID_BY_OTHERS }}" name="fade-right">
+              <van-field required clearable value="{{ addtionalMessage.thirdPartyName }}" placeholder="请输入其他第三方名称" border="{{ true }}" bind:change="handleOtherName" />
+            </van-transition>
+          </van-cell-group>
+        </van-radio-group>
+      </view>
+    </view>
+
+    <view class="question">
+      <van-cell class="question-title" title="2. 该笔业务的产生原因？" />
+      <view class="radio-group">
+        <van-radio-group value="{{ addtionalMessage.reason }}">
+          <van-cell-group>
+            <van-cell title="员工福利" clickable data-name="{{ 1 }}" bind:click="chooseSource">
+              <van-radio name="{{ 1 }}" />
+            </van-cell>
+            <van-cell title="业务招待" clickable data-name="{{ 2 }}" bind:click="chooseSource">
+              <van-radio name="{{ 2 }}" />
+            </van-cell>
+            <van-cell title="员工差旅" clickable data-name="{{ 3 }}" bind:click="chooseSource">
+              <van-radio name="{{ 3 }}" />
+            </van-cell>
+            <van-cell title="购入公司经营的商品" clickable data-name="{{ 4 }}" bind:click="chooseSource">
+              <van-radio name="{{ 4 }}" />
+            </van-cell>
+            <van-cell title="售出公司经营的商品" clickable data-name="{{ 5 }}" bind:click="chooseSource">
+              <van-radio name="{{ 5 }}" />
+            </van-cell>
+            <van-cell title="购买样品" clickable data-name="{{ 6 }}" bind:click="chooseSource">
+              <van-radio name="{{ 6 }}" />
+            </van-cell>
+            <van-cell title="办公司租金" clickable data-name="{{ 7 }}" bind:click="chooseSource">
+              <van-radio name="{{ 7 }}" />
+            </van-cell>
+            <van-cell title="员工租赁房屋的租金" clickable data-name="{{ 8 }}" bind:click="chooseSource">
+              <van-radio name="{{ 8 }}" />
+            </van-cell>
+            <van-cell title="公司成立前的设立费用" clickable data-name="{{ 9 }}" bind:click="chooseSource">
+              <van-radio name="{{ 9 }}" />
+            </van-cell>
+            <van-cell title="办公司保洁及维修保养" clickable data-name="{{ 10 }}" bind:click="chooseSource">
+              <van-radio name="{{ 10 }}" />
+            </van-cell>
+            <van-cell title="其他" clickable data-name="{{ 11 }}" bind:click="chooseSource">
+              <van-radio name="{{ 11 }}" />
+            </van-cell>
+          </van-cell-group>
+        </van-radio-group>
+      </view>
+    </view>
+
+    <button @tap="handleMakeCertificate" class="make-certificate">
+      点击生成凭证
+    </button>
+    <button @tap="goBack" class="go-back">
+      上一步
+    </button>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import {
+  URL,
+  PAID_BY_COMPANY,
+  PAID_BY_EMPLOYEE,
+  PAID_BY_OTHERS,
+  PLAIN_INVOICE,
+  OTHER_INVOICE
+} from '../../constant/constant'
+
+export default class AddtionalMessage extends wepy.page {
+  config = {
+    navigationBarTitleText: '确认发票信息',
+    "usingComponents": {
+      "van-button": "/components/van/button/index",
+      "van-cell": "/components/van/cell/index",
+      "van-cell-group": "/components/van/cell-group/index",
+      "van-radio": "/components/van/radio/index",
+      "van-radio-group": "/components/van/radio-group/index",
+      "van-transition": "/components/van/transition/index",
+      "van-field": "/components/van/field/index",
+    }
+  }
+
+  data = {
+    addtionalMessage: {},
+    message: {},
+    PAID_BY_COMPANY,
+    PAID_BY_EMPLOYEE,
+    PAID_BY_OTHERS,
+    PLAIN_INVOICE,
+    OTHER_INVOICE,
+  }
+
+  showToast(title) {
+    wx.showToast({
+      title: title,
+      icon: 'none',
+      duration: 2000
+    })
+  }
+
+  methods = {
+    // 由谁支付
+    choosePay(e) {
+      this.addtionalMessage.whoPays = e.currentTarget.dataset.name
+      if (this.addtionalMessage.whoPays == 2) {
+        this.addtionalMessage.thirdPartyName = ''
+      } else if (this.addtionalMessage.whoPays == 3) {
+        this.addtionalMessage.employeeName = ''
+      } else {
+        this.addtionalMessage.thirdPartyName = ''
+        this.addtionalMessage.employeeName = ''
+      }
+    },
+    // 业务产生原因
+    chooseSource(e) {
+      this.addtionalMessage.reason = e.currentTarget.dataset.name
+    },
+    // 公司员工名称
+    handlePersonName(e) {
+      this.addtionalMessage.employeeName = e.detail
+    },
+    // 第三方名称
+    handleOtherName(e) {
+      this.addtionalMessage.thirdPartyName = e.detail
+    },
+    async handleMakeCertificate() {
+      if (!this.addtionalMessage.whoPays) return this.showToast('请选择发票由谁支付')
+      if (this.addtionalMessage.whoPays === PAID_BY_EMPLOYEE && !this.addtionalMessage.employeeName) return this.showToast('请填写公司员工的姓名')
+      if (this.addtionalMessage.whoPays === PAID_BY_OTHERS && !this.addtionalMessage.thirdPartyName) return this.showToast('请填写其他第三方的名称')
+      if (!this.addtionalMessage.reason) return this.showToast('请选择该笔业务产生的原因')
+
+      const invoiceMessage = Object.assign(this.message, this.addtionalMessage)
+      const { data } = await wepy.request({
+        url: URL.addInvoice,
+        data: invoiceMessage,
+        method: 'POST'
+      })
+
+      const res = await wepy.getStorage({key: 'registerQualificationStatus'})
+
+      if (!res.data || this.message.invoiceType === PLAIN_INVOICE || this.message.invoiceType === OTHER_INVOICE || this.message.reason === 1 || this.message.reason === 2) {
+        wx.redirectTo({
+          url: '../notax/notax?result=' + JSON.stringify(data)
+        })
+        return
+      }
+      wx.redirectTo({
+        url: '../purchase/purchase?result=' + JSON.stringify(data)
+      })
+    },
+    goBack() {
+      wx.navigateBack({
+        delta: 1
+      })
+    }
+  }
+
+  async onLoad (options) {
+    this.message = JSON.parse(options.message)
+    try {
+      const { data } = await wepy.getStorage({key: 'addtionalMessage'})
+      this.addtionalMessage = data
+    } catch (e) {
+      this.addtionalMessage = {}
+      this.reasonDependOnDiscription()
+    }
+  }
+
+  onUnload() {
+    wx.setStorage({
+      key: 'addtionalMessage',
+      data: this.addtionalMessage
+    })
+  }
+
+  reasonDependOnDiscription() {
+    // 判断业务产生的原因
+    if (['团建', '节日礼品', '生日礼品', '聚餐', '员工病假慰问', '员工产假慰问'].some((item) => {
+        return this.message.discription.indexOf(item) !== -1
+      })) {
+      this.addtionalMessage.reason = 1
+      return
+    }
+    if (['客户礼品', '为客户支付的差旅费用', '商务洽谈用餐'].some((item) => {
+        return this.message.discription.indexOf(item) !== -1
+      })) {
+      this.addtionalMessage.reason = 2
+      return
+    }
+    if (['出差', '差旅', '商务旅行', '机票', '火车票', '公共交通', '租车', '大巴', '长途客车', '酒店', '餐饮', '停车费', '出租车费', '网约车费', '旅行保险', ].some((item) => {
+        return this.message.discription.indexOf(item) !== -1
+      })) {
+      this.addtionalMessage.reason = 3
+      return
+    }
+
+    this.addtionalMessage.reason = 11
+  }
+}
+</script>

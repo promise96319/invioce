@@ -88,41 +88,30 @@ export default class Purchase extends wepy.page {
     imageHeight: 0,
   }
 
-  computed = {}
-
   methods = {
-    hanldeSavePic () {
-      let _self = this
-          wx.getImageInfo({
-            src: _self.tempFilePath,
-            success (res1) {
-              wx.saveImageToPhotosAlbum({
-                  filePath: res1.path,
-                  success: function (res2) {
-                    wx.showToast({
-                      title: '保存成功',
-                    })
-                    setTimeout(() => {
-                      wx.redirectTo({
-                        url: '../home/home'
-                      })
-                    }, 1500)
-                  },
-                  fail: function (err) {
-                    console.log(err)
-                  }
-              })
-            }
-      })
+    async hanldeSavePic () {
+      const { path } = await wepy.getImageInfo({src: this.tempFilePath})
+      const { errMsg } = await wepy.saveImageToPhotosAlbum({filePath: path})
+      if (errMsg === 'saveImageToPhotosAlbum:ok') {
+        wx.showToast({
+          title: '保存成功',
+        })
+        setTimeout(() => {
+          // 为了与返回按钮同步
+          wx.navigateBack({
+            delta: 1
+          })
+        }, 1500)
+      }
     },
     handleCancel () {
-      wx.redirectTo({
-        url: '../home/home'
+      wx.navigateBack({
+        delta: 1
       })
     }
   }
 
-   onLoad(options) {
+  async onLoad(options) {
      wx.showToast({
        title: '正在生成凭证',
        icon: 'loading',
@@ -212,22 +201,16 @@ export default class Purchase extends wepy.page {
    //   "updatedAt": "2018-11-22T03:14:28.666Z"
    // }
 
-    let that = this
-
     // 获取屏幕宽
-    wx.getSystemInfo({
-      success(res) {
-        that.width = res.windowWidth
-        that.$apply()
-        // that.height = res.windowHeight
-      }
-    })
+    const { windowWidth } = await wepy.getSystemInfo()
+    this.width = windowWidth
+    this.$apply()
 
 
-// 函数定义区域 ===================
+// 函数定义区域 ======================================
     // 设置一个基准比例
     let cal = (px) => {
-      return  px / 750 * that.width
+      return  px / 750 * this.width
     }
 
     // canvas换行显示
@@ -249,6 +232,7 @@ export default class Purchase extends wepy.page {
       }
     }
 
+// canvas绘制区域 =======================================
     const ctx = wx.createCanvasContext('canvasId')
 
     ctx.setFillStyle('white')
@@ -402,7 +386,7 @@ export default class Purchase extends wepy.page {
     this.result.thirdPartyName && ctx.fillText(this.result.thirdPartyName, cal(582), cal(24) + cal(36) * 2)
 
     ctx.draw(true, () => {
-      that.imageHeight = cal(120) + (7 + this.result.subjects.length) * cal(36)
+      this.imageHeight = cal(120) + (7 + this.result.subjects.length) * cal(36)
       wx.canvasToTempFilePath({
           x: 0,
           y: 0,
@@ -414,13 +398,19 @@ export default class Purchase extends wepy.page {
           success: (res) => {
               wx.hideToast()
               //将获取到的图片临时路径set到canvasSaveimg中
-              that.tempFilePath = res.tempFilePath
-              that.$apply()
+              this.tempFilePath = res.tempFilePath
+              this.$apply()
           },
           fail: (err) => {
             console.log(err);
           }
       })
+    })
+  }
+
+  onUnload () {
+    wx.navigateBack({
+      delta: 1
     })
   }
 }

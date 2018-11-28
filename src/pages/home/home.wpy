@@ -39,19 +39,15 @@
     width: 600rpx;
 }
 
-.dialog-container button {
-    display: block;
-    border: none;
-}
-
 .divive-gap {
     width: 100%;
     height: 10rpx;
     background-color: rgba(100, 100, 100, .8);
 }
 
-.popup-container {
+.popup-container .van-cell{
   width: 100%;
+  border-bottom: 1rpx solid rgba(245, 245, 245, .8);
 }
 
 </style>
@@ -83,17 +79,17 @@
   position="bottom"
   >
     <view class="popup-container">
-      <van-group>
-        <van-cell title="拍照识别" clickable @click="getPhoto('camera')"></van-cell>
-        <van-cell title="选择照片识别" clickable @click="getPhoto('album')"></van-cell>
-        <van-cell title="自行录入" clickable @click="writeBySelf"></van-cell>
+      <van-group border="{{ false }}">
+        <van-cell border="{{ false }}" title="拍照识别" clickable @click="getPhoto('camera')"></van-cell>
+        <van-cell border="{{ false }}" title="选择照片识别" clickable @click="getPhoto('album')"></van-cell>
+        <van-cell border="{{ false }}" title="自行录入" clickable @click="writeBySelf"></van-cell>
       </van-group>
     </view>
     <view class="divive-gap"></view>
     <view class="popup-container">
-      <van-group>
-        <van-cell title="编辑" clickable @click="handleEditCompany"></van-cell>
-        <van-cell title="删除" clickable @click="handleDeleteCompany"></van-cell>
+      <van-group border="{{ false }}">
+        <van-cell border="{{ false }}" title="编辑" clickable @click="handleEditCompany"></van-cell>
+        <van-cell border="{{ false }}" title="删除" clickable @click="handleDeleteCompany"></van-cell>
       </van-group>
     </view>
   </van-popup>
@@ -102,14 +98,8 @@
 
 <script>
 import wepy from 'wepy'
-import {
-  connect
-} from 'wepy-redux'
-import {
-  APPID,
-  SECRET,
-  URL
-} from '../../constant/constant'
+import { connect } from 'wepy-redux'
+import { APPID, SECRET, URL } from '../../constant/constant'
 
 @connect({
   company(state) {
@@ -134,6 +124,8 @@ export default class Home extends wepy.page {
 
   data = {
     canIUse: wx.canIUse('button.open-type.getUserInfo'),
+    // show: true,
+    // currentIndex: 0,
     show: false,
     currentIndex: -1,
   }
@@ -188,6 +180,7 @@ export default class Home extends wepy.page {
         url: '../company/company?type=add&company='
       })
     },
+
     // 显示隐藏发票识别的入口
     showPopup(index) {
       this.show = true
@@ -196,6 +189,7 @@ export default class Home extends wepy.page {
     hidePopup() {
       this.show = false
     },
+
     // 调用拍照或者选取照片接口 ======发票识别
     async getPhoto(type) {
       this.show = false
@@ -232,12 +226,8 @@ export default class Home extends wepy.page {
 
   // 获取access_token
   async handleGetAccessToken(base64) {
-    const {
-      data: {
-        access_token
-      }
-    } = await wepy.request({
-      url: 'https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=UVVOjbGt1XpSR9cW6GCSh77t&client_secret=mwHCmi819kPcVlOn7r8XAbnerudcOGwB&',
+    const { data: { access_token } } = await wepy.request({
+      url: URL.getBaiDuAccessToken,
       method: 'POST'
     })
     this.getInvoiceData(access_token, base64)
@@ -247,7 +237,7 @@ export default class Home extends wepy.page {
   async getInvoiceData(access_token, base64) {
     const _self = this
     const { data: { words_result } } = await wepy.request({
-      url: 'https://aip.baidubce.com/rest/2.0/ocr/v1/vat_invoice?access_token=' + access_token,
+      url:  URL.invoiceIdentification + access_token,
       data: {
         image: base64,
         detect_direction: true
@@ -261,32 +251,31 @@ export default class Home extends wepy.page {
     if (words_result) {
       wx.hideToast()
 
-      const { statusCode } = await wepy.request({
-        url: URL.checkInvoice,
-        method: 'POST',
-        data: {
-          "no": wepy.$store.getState().userInfo.no,
-          "companyId": _self.company[_self.currentIndex].id,
-          "invoiceNum": words_result.InvoiceNum
-        }
-      })
-
-      if (statusCode === 403) {
-        return wx.showModal({
-          title: '该发票已经被识别过!',
-          content: `绑定的公司为：${_self.company[_self.currentIndex].name}`,
-          confirmColor: '#55ACEE',
-          confirmText: '知道了',
-          showCancel: false,
-          success(res) {
-          }
-        })
-      } else if (statusCode === 200) {
-      console.log(words_result);
+      // const { statusCode } = await wepy.request({
+      //   url: URL.checkInvoice,
+      //   method: 'POST',
+      //   data: {
+      //     "no": wepy.$store.getState().userInfo.no,
+      //     "companyId": _self.company[_self.currentIndex].id,
+      //     "invoiceNum": words_result.InvoiceNum
+      //   }
+      // })
+      //
+      // if (statusCode === 403) {
+      //   return wx.showModal({
+      //     title: '该发票已经被识别过!',
+      //     content: `绑定的公司为：${_self.company[_self.currentIndex].name}`,
+      //     confirmColor: '#55ACEE',
+      //     confirmText: '知道了',
+      //     showCancel: false,
+      //     success(res) {
+      //     }
+      //   })
+      // } else if (statusCode === 200) {
         wx.navigateTo({
           url: '../invoice/invoice?message=' + JSON.stringify(words_result) + '&company=' + JSON.stringify(_self.company[_self.currentIndex])
         })
-      }
+      // }
     } else {
       wx.hideToast()
       wx.showModal({
@@ -309,7 +298,6 @@ export default class Home extends wepy.page {
   // 根据用户基本信息获取唯一id和公司信息
   async getTotalUserInfo(userInfo) {
     const { code } = await wepy.login()
-    // console.log('code', code);
     if (!code) return
     // const { data: { openid } } = await wepy.request('https://api.weixin.qq.com/sns/jscode2session?appid=' + APPID + '&secret=' + SECRET + '&js_code=' + code + '&grant_type=authorization_code')
     const { data: { openid } } = await wepy.request(URL.getOpenId + '?code=' + code)
@@ -332,8 +320,6 @@ export default class Home extends wepy.page {
       type: 'UPDATECOMPANY',
       payload: company
     })
-
-    wx.hideToast()
   }
 
   async onLoad() {

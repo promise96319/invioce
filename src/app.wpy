@@ -24,9 +24,11 @@ wepy.$store = store
 export default class extends wepy.app {
   config = {
     pages: [
-      'pages/home/home',
-      'pages/company/company',
+      'pages/home/home', //主页
       'pages/invoice/invoice', //发票是识别后的信息展示
+
+      'pages/company/company', //公司信息
+      'pages/addtionalMessage/addtionalMessage', //用户补充发票信息
       'pages/sale/sale', //为销售者时的凭证
       'pages/notax/notax', //不用税收时的凭证
       'pages/purchase/purchase', //为购买者时的凭证

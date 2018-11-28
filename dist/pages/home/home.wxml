@@ -21,17 +21,17 @@
 
   <van-popup show="{{ show }}"  bind:close="hidePopup" position="bottom">
     <view class="popup-container">
-      <van-group>
-        <van-cell title="拍照识别" clickable="clickable" bindclick="getPhoto" data-wpygetphoto-a="camera"/>
-        <van-cell title="选择照片识别" clickable="clickable" bindclick="getPhoto" data-wpygetphoto-a="album"/>
-        <van-cell title="自行录入" clickable="clickable" bindclick="writeBySelf"/>
+      <van-group border="{{ false }}">
+        <van-cell border="{{ false }}" title="拍照识别" clickable="clickable" bindclick="getPhoto" data-wpygetphoto-a="camera"/>
+        <van-cell border="{{ false }}" title="选择照片识别" clickable="clickable" bindclick="getPhoto" data-wpygetphoto-a="album"/>
+        <van-cell border="{{ false }}" title="自行录入" clickable="clickable" bindclick="writeBySelf"/>
       </van-group>
     </view>
     <view class="divive-gap"/>
     <view class="popup-container">
-      <van-group>
-        <van-cell title="编辑" clickable="clickable" bindclick="handleEditCompany"/>
-        <van-cell title="删除" clickable="clickable" bindclick="handleDeleteCompany"/>
+      <van-group border="{{ false }}">
+        <van-cell border="{{ false }}" title="编辑" clickable="clickable" bindclick="handleEditCompany"/>
+        <van-cell border="{{ false }}" title="删除" clickable="clickable" bindclick="handleDeleteCompany"/>
       </van-group>
     </view>
   </van-popup>

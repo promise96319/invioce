@@ -4,8 +4,10 @@
 }
 
 // 第一部分
+.basic-message {
+  margin: 80rpx 0;
+}
 
-.step-container,
 .message-detail {
   width: 690rpx;
   margin-top: 60rpx;
@@ -15,7 +17,7 @@
   padding-bottom: 160rpx;
 }
 
-.next-btn {
+.make-certificate {
   margin-top: 80rpx;
   border: none;
   background-color: #55ACEE;
@@ -54,7 +56,25 @@
 }
 
 .one-detail {
+  box-sizing: border-box;
   margin-bottom: 80rpx;
+  border: 1px solid rgba(255, 255, 255, 0);
+}
+
+.active {
+  border: 1px solid #55ACFF;
+}
+
+.active .van-cell__title {
+  width: 360rpx!important;
+}
+
+.one-detail .detail-title .van-cell__value {
+  padding-right: 20rpx;
+  color: #ff0000;
+}
+.one-detail .detail-title  .delete-icon {
+  line-height: 48rpx;
 }
 
 .total-money {
@@ -64,138 +84,114 @@
   padding-right: 10rpx;
 }
 
-// 第三部分
-.question {
-  margin-bottom: 80rpx;
-}
-
-.van-cell__title {
-  font-size: 28rpx;
-}
-
-.radio-group {
-  box-sizing: border-box;
-  padding-left: 60rpx;
-}
-
-.makePdf {
-  margin-top: 100rpx;
-}
-
-.success-message view {
-  display: flex;
-  justify-content: center;
-  margin: 40rpx auto;
-  font-size: 30rpx;
-  color: #666;
-  width: 60%;
-  text-align: center;
-}
-
-.confirm-btn button {
-  margin-top: 160rpx;
-  border: none;
-  background-color: #55ACEE;
-  color: #fff;
-}
-
-.question-style {
-  color: #999;
-  font-size: 32rpx;
-}
-
 </style>
 
 <template>
 <view class="container">
-  <van-steps
-    steps="{{ steps }}"
-    active="{{ active }}"
-    active-color="#55ACEE"
-    custom-class="step-container"
-    bind:click="toggleSteps"
-  />
-
 <!-- 基本信息 -->
-  <view wx:if="{{ active === 0 }}" class="message-detail">
-    <van-cell-group>
-      <van-field
-        value="{{ message.purchaserName }}"
-        required
-        clearable
-        label="购买方"
-        placeholder="请输入购买方"
-        bind:change="onInput(purchaserName)"
-      />
-      <van-field
-        value="{{ message.sellerName }}"
-        required
-        clearable
-        label="销售方"
-        placeholder="请输入销售方"
-        bind:change="onInput(sellerName)"
-      />
-      <view @tap="handleShowInvoiceType">
-        <van-field
-          value="{{ showInvoiceTypeValue }}"
-          required
-          readonly
-          label="发票类型"
-          icon="add-o"
-          placeholder="请选择发票类型"
-          bind:click-icon="handleShowInvoiceType"
-        />
-      </view>
-      <view @tap="handleShowInvoiceDate">
-        <van-field
-          value="{{ message.invoiceDate }}"
-          required
-          readonly
-          label="开票日期"
-          placeholder="请选择开票日期"
-          icon="add-o"
-          bind:click-icon="handleShowInvoiceDate"
-        />
-      </view>
-      <van-field
-        value="{{ message.invoiceNum }}"
-        required
-        clearable
-        label="发票号码"
-        placeholder="请输入发票号码"
-        bind:change="onInput(invoiceNum)"
-      />
-      <van-field
-        wx:if="{{ !invoiceDateShow }}"
-        required
-        clearable
-        value="{{ message.discription }}"
-        label="业务描述"
-        icon="question"
-        bind:click-icon="showTips('描述该笔业务(比如出差到宁波的飞机票和住宿费)以及对发票上显示的商品或服务名称进行补充解释')"
-        type="textarea"
-        placeholder="描述该笔业务"
-        autosize
-        bind:change="handleDiscription"
-      />
-      <van-field
-        clearable
-        value="{{ message.project }}"
-        label="所属项目"
-        placeholder="描述该笔业务所属项目"
-        autosize
-        bind:change="handleBelongTo"
-      />
-    </van-cell-group>
+  <view class="message-detail">
 
-    <button @tap="goNext" class="next-btn">下一步</button>
-  </view>
+    <van-cell title="请选择：您属于购买方还是销售方？(必选)" required/>
+    <van-radio-group value="{{ message.identity }}">
+      <van-cell-group>
+        <van-cell title="购买方" clickable data-name="{{ PURCHASER }}" bind:click="chooseIdentity">
+          <van-radio name="{{ PURCHASER }}" />
+        </van-cell>
+        <van-cell title="销售方" clickable data-name="{{ SELLER }}" bind:click="chooseIdentity">
+          <van-radio name="{{ SELLER }}" />
+        </van-cell>
+      </van-cell-group>
+    </van-radio-group>
+
+    <view class="basic-message">
+      <van-cell-group>
+        <van-field
+          value="{{ message.purchaserName }}"
+          required
+          clearable
+          label="购买方"
+          placeholder="请输入购买方"
+          bind:change="handleInputInvoiceMsg(purchaserName)"
+        />
+        <van-field
+          value="{{ message.sellerName }}"
+          required
+          clearable
+          label="销售方"
+          placeholder="请输入销售方"
+          bind:change="handleInputInvoiceMsg(sellerName)"
+        />
+        <view @tap="handleShowInvoiceType">
+          <van-field
+            value="{{ showInvoiceTypeValue }}"
+            required
+            readonly
+            label="发票类型"
+            placeholder="请选择发票类型"
+            icon="add-o"
+            bind:click-icon="handleShowInvoiceType"
+          />
+        </view>
+        <view @tap="handleShowInvoiceDate">
+          <van-field
+            value="{{ message.invoiceDate }}"
+            required
+            readonly
+            label="开票日期"
+            placeholder="请选择开票日期"
+            icon="add-o"
+            bind:click-icon="handleShowInvoiceDate"
+          />
+        </view>
+        <van-field
+          value="{{ message.invoiceNum }}"
+          required
+          clearable
+          label="发票号码"
+          placeholder="请输入发票号码"
+          bind:change="handleInputInvoiceMsg(invoiceNum)"
+        />
+        <van-field
+          wx:if="{{ !invoiceDateShow }}"
+          required
+          clearable
+          value="{{ message.discription }}"
+          label="业务描述"
+          icon="question"
+          bind:click-icon="showTips('描述该笔业务(比如出差到宁波的飞机票和住宿费)以及对发票上显示的商品或服务名称进行补充解释')"
+          type="textarea"
+          placeholder="描述该笔业务"
+          autosize
+          bind:change="handleDiscription"
+        />
+        <van-field
+          clearable
+          value="{{ message.project }}"
+          label="所属项目"
+          placeholder="描述该笔业务所属项目"
+          autosize
+          bind:change="handleBelongTo"
+        />
+      </van-cell-group>
+    </view>
 
 <!-- 货物信息 -->
-  <view wx:if="{{ active === 1 }}" class="message-detail">
-    <view class="one-detail" wx:for="{{ message.serviceDetail }}" wx:key="index">
+    <view class="one-detail {{ currentIndex === index ? 'active' : '' }}" wx:for="{{ message.serviceDetail }}" wx:key="index" @tap="chooseServiceDetail({{ index }})">
       <van-cell-group>
-        <van-swipe-cell id="swipe-cell" right-width="{{ 50 }}" left-width="{{ 50 }}" async-close bind:close="dealDetail" data-index="{{ index }}">
+        <van-cell
+        title="{{ '支付信息' + (index + 1) }}"
+        value="{{ currentIndex === index ? '删除' : '' }}"
+        class="detail-title"
+        @tap="handleDeleteDetail({{ index }})">
+          <van-icon
+            wx:if="{{ currentIndex === index }}"
+            slot="right-icon"
+            name="delete"
+            color="#ff0000"
+            class="delete-icon"
+          />
+        </van-cell>
+        <!-- <van-swipe-cell id="swipe-cell" right-width="{{ 50 }}" left-width="{{ 50 }}" async-close bind:close="dealDetail" data-index="{{ index }}">
           <view slot="left" class="delete" wx:if="{{ message.serviceDetail.length > 1 }}">删除</view>
           <van-cell-group>
             <van-cell title="{{'支付信息' + (index + 1) }}" @click="showTips('左右滑动可以编辑支付信息')">
@@ -203,17 +199,15 @@
             </van-cell>
           </van-cell-group>
           <view slot="right" class="edit">增加</view>
-        </van-swipe-cell>
+        </van-swipe-cell> -->
 
         <van-field
           value="{{ item.commodityName }}"
           required
           clearable
           label="名称"
-          icon="question"
-          bind:click-icon="showTips('此处填写货物或应税劳务、服务名称')"
           placeholder="请输入购买货物或应税劳务、服务名称"
-          bind:change="onInputDetail(commodityName, {{ index }})"
+          bind:change="handleInputDetail(commodityName, {{ index }})"
         />
 
         <van-field
@@ -222,7 +216,7 @@
           clearable
           label="金额"
           placeholder="请输入购买金额"
-          bind:change="onInputDetail(commodityAmount, {{ index }})"
+          bind:change="handleInputDetail(commodityAmount, {{ index }})"
         />
 
         <van-field
@@ -231,7 +225,7 @@
           clearable
           label="税额"
           placeholder="请输入购买税额"
-          bind:change="onInputDetail(commodityTax, {{ index }})"
+          bind:change="handleInputDetail(commodityTax, {{ index }})"
         />
       </van-cell-group>
     </view>
@@ -240,179 +234,35 @@
       价税合计：{{ calTotalMoney }}
     </view>
 
-    <button @tap="goNext" class="next-btn">下一步</button>
-  </view>
+    <button @tap="handleMakeCertificate" class="make-certificate">
+      {{ message.identity === SELLER ? '点击生成凭证' : '下一步' }}
+    </button>
 
-<!-- 补充信息 -->
-  <view wx:if="{{ active === 2 }}" class="message-detail">
-
-    <view class="question">
-      <van-cell class="question-title" title="1. 是否为一般纳税人资格状态?"/>
-      <view class="radio-group">
-        <van-radio-group value="{{ company.registerQualificationStatus }}">
-          <van-cell-group>
-            <van-cell title="是" clickable data-name="{{ true }}" bind:click="taxPersonChange">
-              <van-radio name="{{ true }}" />
-            </van-cell>
-            <van-cell title="否" clickable data-name="{{ false }}" bind:click="taxPersonChange">
-              <van-radio name="{{ false }}" />
-            </van-cell>
-          </van-cell-group>
-        </van-radio-group>
-      </view>
-    </view>
-
-    <view class="question">
-      <van-cell class="question-title" title="2. 您属于购买方还是销售方？"/>
-      <view class="radio-group">
-        <van-radio-group value="{{ message.identity }}">
-          <van-cell-group>
-            <van-cell title="购买方" clickable data-name="{{ 1 }}" bind:click="chooseIdentity">
-              <van-radio name="{{ 1 }}" />
-            </van-cell>
-            <van-cell title="销售方" clickable data-name="{{ 2 }}" bind:click="chooseIdentity">
-              <van-radio name="{{ 2 }}" />
-            </van-cell>
-          </van-cell-group>
-        </van-radio-group>
-      </view>
-    </view>
-
-    <van-transition show="{{ message.identity === 1 }}" name="fade-up">
-      <view class="question">
-        <van-cell class="question-title" title="3 .发票由谁支付?"/>
-        <view class="radio-group">
-          <van-radio-group value="{{ message.whoPays }}">
-            <van-cell-group>
-              <van-cell title="公司" clickable data-name="{{ 1 }}" bind:click="choosePay">
-                <van-radio name="{{ 1 }}" />
-              </van-cell>
-              <van-cell title="公司员工" clickable data-name="{{ 2 }}" bind:click="choosePay">
-                <van-radio name="{{ 2 }}" />
-              </van-cell>
-              <van-transition show="{{ message.whoPays == 2 }}" name="fade-right">
-                <van-field
-                  required
-                  clearable
-                  value="{{ message.employeeName }}"
-                  placeholder="请输入公司员工姓名"
-                  border="{{ true }}"
-                  bind:change="handlePersonName"
-                />
-              </van-transition>
-              <van-cell title="其他第三方" clickable data-name="{{ 3 }}" bind:click="choosePay">
-                <van-radio name="{{ 3 }}" />
-              </van-cell>
-              <van-transition show="{{ message.whoPays == 3 }}" name="fade-right">
-                <van-field
-                  required
-                  clearable
-                  value="{{ message.thirdPartyName }}"
-                  placeholder="请输入其他第三方名称"
-                  border="{{ true }}"
-                  bind:change="handleOtherName"
-                />
-              </van-transition>
-            </van-cell-group>
-          </van-radio-group>
-        </view>
-      </view>
-
-      <view class="question">
-        <van-cell class="question-title" title="4. 该笔业务的产生原因？"/>
-        <view class="radio-group">
-          <van-radio-group value="{{ message.reason }}">
-            <van-cell-group>
-              <van-cell title="员工福利" clickable data-name="{{ 1 }}" bind:click="chooseSource">
-                <van-radio name="{{ 1 }}" />
-              </van-cell>
-              <van-cell title="业务招待" clickable data-name="{{ 2 }}" bind:click="chooseSource">
-                <van-radio name="{{ 2 }}" />
-              </van-cell>
-              <van-cell title="员工差旅" clickable data-name="{{ 3 }}" bind:click="chooseSource">
-                <van-radio name="{{ 3 }}" />
-              </van-cell>
-              <van-cell title="购入公司经营的商品" clickable data-name="{{ 4 }}" bind:click="chooseSource">
-                <van-radio name="{{ 4 }}" />
-              </van-cell>
-              <van-cell title="售出公司经营的商品" clickable data-name="{{ 5 }}" bind:click="chooseSource">
-                <van-radio name="{{ 5 }}" />
-              </van-cell>
-              <van-cell title="购买样品" clickable data-name="{{ 6 }}" bind:click="chooseSource">
-                <van-radio name="{{ 6 }}" />
-              </van-cell>
-              <van-cell title="办公司租金" clickable data-name="{{ 7 }}" bind:click="chooseSource">
-                <van-radio name="{{ 7 }}" />
-              </van-cell>
-              <van-cell title="员工租赁房屋的租金" clickable data-name="{{ 8 }}" bind:click="chooseSource">
-                <van-radio name="{{ 8 }}" />
-              </van-cell>
-              <van-cell title="公司成立前的设立费用" clickable data-name="{{ 9 }}" bind:click="chooseSource">
-                <van-radio name="{{ 9 }}" />
-              </van-cell>
-              <van-cell title="办公司保洁及维修保养" clickable data-name="{{ 10 }}" bind:click="chooseSource">
-                <van-radio name="{{ 10 }}" />
-              </van-cell>
-              <van-cell title="其他" clickable data-name="{{ 11 }}" bind:click="chooseSource">
-                <van-radio name="{{ 11 }}" />
-              </van-cell>
-            </van-cell-group>
-          </van-radio-group>
-        </view>
-      </view>
-    </van-transition>
-
-    <button @tap="goNext" class="next-btn">下一步</button>
-  </view>
-
-<!-- 生成凭证 -->
-  <view wx:if="{{ active === 3 }}" class="message-detail makePdf">
-    <view class="success-message" wx:if="{{ !errMessage }}">
-      <view>
-        <icon type="success_no_circle" size="70"></icon>
-      </view>
-      <view>
-        <text>您已确认信息完毕！</text>
-      </view>
-    </view>
-
-    <view class="success-message" wx:else>
-      <view>
-        <icon type="warn" size="70"></icon>
-      </view>
-      <view>
-        <text>{{ errMessage }}</text>
-      </view>
-    </view>
-
-    <view class="confirm-btn">
-      <van-button size="large" @tap="handleMakePdf">点击生成凭证</van-button>
-    </view>
   </view>
 
   <!-- 发票类型层 -->
   <van-popup
   show="{{ invoiceTypeShow }}"
-  bind:close="onClose"
+  bind:close="handleClosePopup"
   position="bottom"
   class="invoice-type-style"
   z-index="99">
-      <van-button type="default" class="{{ message.invoiceType == 1 ? 'active-type ': '' }}" @click="changeInvoiceType(1)">专用发票</van-button>
-      <van-button type="default" class="{{ message.invoiceType == 2 ? 'active-type ': '' }}" @click="changeInvoiceType(2)">普通发票</van-button>
-      <van-button type="default" class="{{ message.invoiceType == 3 ? 'active-type ': '' }}" @click="changeInvoiceType(3)">其他发票</van-button>
+      <van-button type="default" class="{{ message.invoiceType == SPECIAL_INVOICE ? 'active-type ': '' }}" @click="changeInvoiceType({{ SPECIAL_INVOICE }})">专用发票</van-button>
+      <van-button type="default" class="{{ message.invoiceType == PLAIN_INVOICE ? 'active-type ': '' }}" @click="changeInvoiceType({{ PLAIN_INVOICE }})">普通发票</van-button>
+      <van-button type="default" class="{{ message.invoiceType == OTHER_INVOICE ? 'active-type ': '' }}" @click="changeInvoiceType({{ OTHER_INVOICE }})">其他发票</van-button>
   </van-popup>
 
   <!-- 日期弹出层 -->
   <van-popup
    show="{{ invoiceDateShow }}"
-   bind:close="onClose"
+   bind:close="handleClosePopup"
    position="bottom"
    z-index="99">
       <van-datetime-picker
         type="date"
         bind:change="dateChange"
         bind:confirm="dateConfirm"
-        bind:cancel="onClose"
+        bind:cancel="handleClosePopup"
       />
   </van-popup>
 
@@ -436,7 +286,7 @@
       label="名称"
       bind:click-icon="showTips('此处填写货物或应税劳务、服务名称')"
       placeholder="请输入购买货物或应税劳务、服务名称"
-      bind:change="onInputTempDetail('commodityName')"
+      bind:change="handleInputTempDetail('commodityName')"
     />
 
     <van-field
@@ -445,7 +295,7 @@
       clearable
       label="金额"
       placeholder="请输入购买金额"
-      bind:change="onInputTempDetail('commodityAmount')"
+      bind:change="handleInputTempDetail('commodityAmount')"
     />
 
     <van-field
@@ -454,7 +304,7 @@
       clearable
       label="税额"
       placeholder="请输入购买税额"
-      bind:change="onInputTempDetail('commodityTax')"
+      bind:change="handleInputTempDetail('commodityTax')"
     />
   </van-cell-group>
 </van-dialog>
@@ -470,16 +320,12 @@ import {
   OTHER_INVOICE,
   PURCHASER,
   SELLER,
-  PAID_BY_COMPANY,
-  PAID_BY_EMPLOYEE,
-  PAID_BY_OTHERS
 } from '../../constant/constant'
 
 export default class Message extends wepy.page {
   config = {
     navigationBarTitleText: '确认发票信息',
     "usingComponents": {
-      "van-steps": "/components/van/steps/index",
       "van-button": "/components/van/button/index",
       "van-popup": "/components/van/popup/index",
       "van-datetime-picker": "/components/van/datetime-picker/index",
@@ -501,29 +347,6 @@ export default class Message extends wepy.page {
     // 公司信息
     company: {},
 
-    // 步骤
-    steps: [
-      {
-        text: '步骤一',
-        desc: '基本信息'
-      },
-      {
-        text: '步骤二',
-        desc: '货物信息'
-      },
-      {
-        text: '步骤三',
-        desc: '补充信息'
-      },
-      {
-        text: '步骤四',
-        desc: '生成凭证'
-      }
-    ],
-    // 当前进行的步骤
-    active: 0,
-    thresholdValue: 0,
-
     // 是否显示发票类型弹出层
     invoiceTypeShow: false,
     // 是否显示发票日期弹出层
@@ -538,10 +361,14 @@ export default class Message extends wepy.page {
     // 增添商品时的临时信息
     tempDetail: {},
 
-    // 纳税人一般资格状态
-    isTaxPerson: true,
-
     errMessage: '',
+
+    // 常量
+    SPECIAL_INVOICE,
+    PLAIN_INVOICE,
+    OTHER_INVOICE,
+    PURCHASER,
+    SELLER,
   }
 
   computed = {
@@ -571,7 +398,7 @@ export default class Message extends wepy.page {
     }
   }
 
-  // 公用弹窗提示函数
+  // 公用弹窗提示错误消息函数
   showToast(title) {
     wx.showToast({
       title: title,
@@ -580,67 +407,33 @@ export default class Message extends wepy.page {
     })
   }
 
+  formatDate(timestamp) {
+    let time = new Date(timestamp)
+    let year = time.getFullYear()
+    let month = time.getMonth() + 1
+    month = month < 10 ? '0' + month : month
+    let date = time.getDate()
+    date = date < 10 ? '0' + date : date
+    return year + '年' + month + '月' + date + '日'
+  }
+
   methods = {
-    // 自定义进步条组件里的事件
-    toggleSteps (e) {
-      //设置一个界限值，只有当用户已经操作过的步骤才可以随意跳转
-      if (e.detail.currentTarget.dataset.active <= this.thresholdValue) {
-        this.active = e.detail.currentTarget.dataset.active
-      }
-    },
-    // 下一步：验证当前信息
-    async goNext() {
-      switch (this.active) {
-        case 0:
-          if (!this.message.purchaserName) return this.showToast('请填写购买者的名称')
-          if (!this.message.sellerName) return this.showToast('请填写销售者的名称')
-          if (!this.message.invoiceDate) return this.showToast('请选择开票日期')
-          if (!this.message.invoiceNum) return this.showToast('请填写发票号码')
-          const { statusCode } = await wepy.request({
-            url: URL.checkInvoice,
-            method: 'POST',
-            data: {
-              "no": wepy.$store.getState().userInfo.no,
-              "companyId": this.company.id,
-              "invoiceNum": this.message.invoiceNum
-            }
-          })
-
-          if (statusCode === 403) {
-            wx.showModal({
-              title: '该发票已经被识别过!',
-              content: `绑定的公司为：${this.company.name}`,
-              confirmColor: '#55ACEE',
-              confirmText: '知道了',
-              showCancel: false,
-            })
-            return;
-          }
-          if (!this.message.discription) return this.showToast('请填写业务描述')
-          break
-        case 1:
-          for (let i = 0; i < this.message.serviceDetail.length; i++) {
-            if (!this.message.serviceDetail[i].commodityName) return this.showToast('请填写支付信息' + (i + 1) + '中的名称')
-            if (!this.message.serviceDetail[i].commodityAmount && this.message.serviceDetail[i].commodityAmount != 0) return this.showToast('请填写支付信息' + (i + 1) + '中的金额')
-            if (!this.message.serviceDetail[i].commodityTax && this.message.serviceDetail[i].commodityTax != 0) return this.showToast('请填写支付信息' + (i + 1) + '中的税额')
-          }
-          break
-        case 2:
-          if (!this.message.identity) return this.showToast('请选择您是属于购买方还是销售方')
-          if (this.message.identity === PURCHASER) {
-            if (!this.message.whoPays) return this.showToast('请选择发票由谁支付')
-            if (this.message.whoPays === PAID_BY_EMPLOYEE && !this.message.employeeName) return this.showToast('请填写公司员工的姓名')
-            if (this.message.whoPays === PAID_BY_OTHERS && !this.message.thirdPartyName) return this.showToast('请填写其他第三方的名称')
-            if (!this.message.reason) return this.showToast('请选择该笔业务产生的原因')
-          }
-      }
-
-      this.active++
-      this.thresholdValue = this.thresholdValue < this.active ? this.active : this.thresholdValue
-      this.$apply()
+    // 公共提示帮助信息函数
+    showTips (tip) {
+      wx.showModal({
+        title: '温馨提示:',
+        content: tip,
+        confirmColor: '#55ACEE',
+        confirmText: '知道了',
+        showCancel: false,
+        success(res) {
+        }
+      })
     },
 
-    // active == 1 :发票基本信息 ================================>>>>
+    chooseIdentity(e) {
+      this.message.identity = e.currentTarget.dataset.name
+    },
     // 更改发票类型
     changeInvoiceType (type) {
       switch (Number(type)) {
@@ -656,18 +449,6 @@ export default class Message extends wepy.page {
       }
       this.invoiceTypeShow = false
     },
-    // 业务描述提示
-    showTips (tip) {
-      wx.showModal({
-        title: '温馨提示:',
-        content: tip,
-        confirmColor: '#55ACEE',
-        confirmText: '知道了',
-        showCancel: false,
-        success(res) {
-        }
-      })
-    },
     // 发票类型弹出层
     handleShowInvoiceType() {
       this.invoiceTypeShow = true
@@ -677,19 +458,13 @@ export default class Message extends wepy.page {
       this.invoiceDateShow = true
     },
     dateChange (e) {
-      let time = new Date(e.detail.data.innerValue)
-      let year = time.getFullYear()
-      let month = time.getMonth() + 1
-      month = month < 10 ? '0' + month : month
-      let date = time.getDate()
-      date = date < 10 ? '0' + date : date
-      this.currentDate = year + '年' + month + '月' + date + '日'
+      this.currentDate = this.formatDate(e.detail.data.innerValue)
     },
     dateConfirm () {
       this.invoiceDateShow = false
       this.message.invoiceDate = this.currentDate
     },
-    onClose () {
+    handleClosePopup () {
       this.invoiceTypeShow = false
       this.invoiceDateShow = false
     },
@@ -697,35 +472,13 @@ export default class Message extends wepy.page {
     bindDateChange(e) {
       this.message.invoiceDate = e.detail.value
     },
-    onInput(name, e) {
+    handleInputInvoiceMsg(name, e) {
       this.message[name] = e.detail
     },
-    // 业务描述 == 默认业务产生原因
+    // 业务描述 ==> 默认业务产生原因
     handleDiscription(e) {
       this.message.discription = e.detail
-      // 判断业务产生的原因
-      if (this.message.identity !== '购买方' || !this.message.discription) return
 
-      if (['团建', '节日礼品', '生日礼品', '聚餐', '员工病假慰问', '员工产假慰问'].some((item) => {
-          return this.message.discription.indexOf(item) !== -1
-        })) {
-        this.message.reason = '员工福利'
-        return
-      }
-      if (['客户礼品', '为客户支付的差旅费用', '商务洽谈用餐'].some((item) => {
-          return this.message.discription.indexOf(item) !== -1
-        })) {
-        this.message.reason = '业务招待'
-        return
-      }
-      if (['出差', '差旅', '商务旅行', '机票', '火车票', '公共交通', '租车', '大巴', '长途客车', '酒店', '餐饮', '停车费', '出租车费', '网约车费', '旅行保险', ].some((item) => {
-          return this.message.discription.indexOf(item) !== -1
-        })) {
-        this.message.reason = '员工差旅费用'
-        return
-      }
-
-      this.message.reason = '其他'
     },
     // 发票由谁支付
     handleBelongTo(e) {
@@ -733,8 +486,8 @@ export default class Message extends wepy.page {
     },
 
 
-    //active == 1 : 商品信息 ===================================>>>>
-    onInputDetail(type, index, e) {
+    // 商品信息
+    handleInputDetail(type, index, e) {
       let res = e.detail
       if (type !== 'commodityName') {
         if (!res) {
@@ -754,11 +507,33 @@ export default class Message extends wepy.page {
         this.message.serviceDetail[index][type] = res
       }
     },
-    onInputTempDetail (type, e) {
+    handleInputTempDetail (type, e) {
       this.tempDetail[type] = e.detail
     },
     hideDialog () {
       this.detailShow = false
+    },
+    chooseServiceDetail(index) {
+      this.currentIndex = index
+    },
+    // 删除商品信息
+    handleDeleteDetail(index) {
+      this.currentIndex = index
+      const _self = this
+      wx.showModal({
+        content: '是否删除该条支付信息？',
+        success (res) {
+          if (res.confirm) {
+            _self.message.serviceDetail.splice(index, 1)
+            wx.showToast({
+              title: '删除成功',
+            })
+             _self.$apply()
+          } else if (res.cancel) {
+            //
+          }
+        }
+      })
     },
     dealDetail (e) {
        let _self = this
@@ -767,17 +542,7 @@ export default class Message extends wepy.page {
        this.currentIndex = index
        switch (position) {
          case 'left':
-           wx.showModal({
-             content: '是否删除该条支付信息？',
-             success (res) {
-               if (res.confirm) {
-                  _self.handleDeleteDetail()
-                  _self.$apply()
-               } else if (res.cancel) {
-                 //
-               }
-             }
-           })
+
            break
          case 'cell':
            instance.close()
@@ -787,190 +552,127 @@ export default class Message extends wepy.page {
        }
      },
 
+    //生成凭证 或者 下一步
+    async handleMakeCertificate() {
+      if (!this.message.identity) return this.showToast('请选择您是属于购买方还是销售方')
+      if (!this.message.purchaserName) return this.showToast('请填写购买者的名称')
+      if (!this.message.sellerName) return this.showToast('请填写销售者的名称')
+      if (!this.message.invoiceDate) return this.showToast('请选择开票日期')
+      if (!this.message.invoiceNum) return this.showToast('请填写发票号码')
 
-    // active == 2 : 补充信息 ==================>>>>>>>>>>
-    // 一般纳税人状态
-    taxPersonChange(e) {
-      this.company.registerQualificationStatus = e.currentTarget.dataset.name
-    },
-    chooseIdentity(e) {
-      this.message.identity = e.currentTarget.dataset.name
-    },
-    // 由谁支付
-    choosePay(e) {
-      this.message.whoPays = e.currentTarget.dataset.name
-      if (this.message.whoPays == 2) {
-        this.message.thirdPartyName = ''
-      } else if (this.message.whoPays == 3) {
-        this.message.employeeName = ''
-      } else {
-        this.message.thirdPartyName = ''
-        this.message.employeeName = ''
-      }
-    },
-    // 业务产生原因
-    chooseSource(e) {
-      this.message.reason = e.currentTarget.dataset.name
-    },
-    // 公司员工名称
-    handlePersonName(e) {
-      this.message.employeeName = e.detail
-    },
-    // 第三方名称
-    handleOtherName(e) {
-      this.message.thirdPartyName = e.detail
-    },
-
-    // 生成凭证 ===================>
-    async handleMakePdf() {
-
-      if (!this.message.purchaserName) {
-        return this.errMessage = '请在步骤一中填写购买者的名称'
-      }
-      if (!this.message.sellerName) {
-        return this.errMessage = '请在步骤一中填写销售者的名称'
-      }
-
-      for (let i = 0; i < this.message.serviceDetail.length; i++) {
-        if (!this.message.serviceDetail[i].commodityName) {
-          return this.errMessage = '请在步骤二中填写支付信息' + (i + 1) + '的名称'
+      const { statusCode } = await wepy.request({
+        url: URL.checkInvoice,
+        method: 'POST',
+        data: {
+          "no": wepy.$store.getState().userInfo.no,
+          "companyId": this.company.id,
+          "invoiceNum": this.message.invoiceNum
         }
-
-        if ((!this.message.serviceDetail[i].commodityAmount && this.message.serviceDetail[i].commodityAmount !== 0) || this.message.serviceDetail[i].commodityAmount === '-') {
-          return this.errMessage = '请在步骤二中填写支付信息' + (i + 1) + '的金额'
-        }
-
-        if (!this.message.serviceDetail[i].commodityTax && this.message.serviceDetail[i].commodityTax !== 0 || this.message.serviceDetail[i].commodityTax === '-') {
-          return this.errMessage = '请在步骤二中填写支付信息' + (i + 1) + '的税额'
-        }
-      }
-
-      if (!this.message.invoiceDate) {
-        return this.errMessage = '请在步骤一中填写开票日期'
-      }
-      if (!this.message.invoiceNum) {
-        return this.errMessage = '请在步骤一中填写发票号码'
-      }
-      if (!this.message.discription) {
-        return this.errMessage = '请在步骤一中填写业务描述'
-      }
-      if (!this.message.identity) {
-        return this.errMessage = '请选择您是属于购买方还是销售方'
-      }
-      if (this.message.identity === PURCHASER) {
-        if (!this.message.whoPays) {
-          return this.errMessage = '请在步骤三中选择发票由谁支付'
-        } else {
-          if (this.message.whoPays == PAID_BY_EMPLOYEE && !this.message.employeeName) {
-            return this.errMessage = '请在步骤三中填写公司员工的名称'
-          }
-          if (this.message.whoPays == PAID_BY_OTHERS && !this.message.thirdPartyName) {
-            return this.errMessage = '请在步骤三中填写其他第三方的名称'
-          }
-        }
-
-        if (!this.message.reason) {
-          return this.errMessage = '请在步骤三中选择该笔业务产生的原因'
-        }
-      }
-
-      this.errMessage = ''
-
-      const { data } = await wepy.request({
-        url: URL.addInvoice,
-        data: this.message,
-        method: 'POST'
       })
-
-      console.log(data);
-
-      if (this.message.identity === SELLER) {
-        wx.redirectTo({
-          url: '../sale/sale?result=' + JSON.stringify(data)
+      if (statusCode === 403) {
+        wx.showModal({
+          title: '该发票已经被识别过!',
+          content: `绑定的公司为：${this.company.name}`,
+          confirmColor: '#55ACEE',
+          confirmText: '知道了',
+          showCancel: false,
         })
         return
       }
 
-      if (this.message.identity == PURCHASER) {
-        if (!this.isTaxPerson || this.message.invoiceType == '普通发票' || this.message.invoiceType == '其他发票') {
-          wx.redirectTo({
-            url: '../notax/notax?result=' + JSON.stringify(data)
-          })
-          return
-        }
+      if (!this.message.discription) return this.showToast('请填写业务描述')
 
-        if (this.message.reason == PAID_BY_EMPLOYEE || this.message.reason == PAID_BY_OTHERS) {
-          wx.redirectTo({
-            url: '../notax/notax?result=' + JSON.stringify(data)
-          })
-          return
-        } else {
-          wx.redirectTo({
-            url: '../purchase/purchase?result=' + JSON.stringify(data)
-          })
-          return
-        }
+      for (let i = 0; i < this.message.serviceDetail.length; i++) {
+        if (!this.message.serviceDetail[i].commodityName) return this.showToast('请填写支付信息' + (i + 1) + '中的名称')
+        if (!this.message.serviceDetail[i].commodityAmount && this.message.serviceDetail[i].commodityAmount != 0) return this.showToast('请填写支付信息' + (i + 1) + '中的金额')
+        if (!this.message.serviceDetail[i].commodityTax && this.message.serviceDetail[i].commodityTax != 0) return this.showToast('请填写支付信息' + (i + 1) + '中的税额')
+      }
+
+      if (this.message.identity === SELLER) {
+        const { data } = await wepy.request({
+          url: URL.addInvoice,
+          data: this.message,
+          method: 'POST'
+        })
+        wx.redirectTo({
+          url: '../sale/sale?result=' + JSON.stringify(data)
+        })
+
+        wx.removeStorage({key: 'registerQualificationStatus'})
+
+        return
+      }
+
+      if (this.message.identity === PURCHASER) {
+        wx.navigateTo({
+          url: '../addtionalMessage/addtionalMessage?message=' + JSON.stringify(this.message)
+        })
       }
     }
   }
 
   onLoad(options) {
-    this.company = JSON.parse(options.company)
+    // this.company = JSON.parse(options.company)
+    // wx.clearStorage()
+    // wx.setStorage({
+    //   key: 'registerQualificationStatus', data: this.company.registerQualificationStatus
+    // })
 
-    // const invoiceMessage = {
-    //   AmountInFiguers: "5.15",
-    //   CommodityAmount: [{
-    //     word: "12345.89",
-    //     row: "1"
-    //   }, {
-    //     word: "12345.89",
-    //     row: "1"
-    //   }],
-    //   CommodityName: [
-    //     {
-    //     word: "货物可乐",
-    //     row: "1"
-    //   },
-    //     {
-    //     word: "货物可乐",
-    //     row: "1"
-    //   }
-    // ],
-    //   CommodityTax: [{
-    //       word: "0.00",
-    //       row: "2"
-    //     },
-    //     {
-    //       word: "0.00",
-    //       row: "2"
-    //     }],
-    //   InvoiceDate: "2017年09月01日",
-    //   InvoiceNum: "00593803",
-    //   InvoiceType: "专用发票",
-    //   PurchaserAddress: ";北京市海淀区查石口路号天信息甲18就66888",
-    //   PurchaserBank: "测试京市海淀区查石口路甲18号就天信息;北",
-    //   PurchaserName: "航天信息份有限公司",
-    //   SellerName: "航天信息股份有限公司",
-    // }
-    //
-    // this.company = {
-    //   id: 2,
-    //   name: '航天信息份有限公司',
-    //   contactName: 'embark',
-    //   registerQualificationStatus: false,
-    //   registerNum: '1213',
-    //   contactPhone: '12345678910'
-    // }
-
-    if (!options.message) {
-      this.message = {
-        "no": wepy.$store.getState().userInfo.no, //微信id
-        "id": this.company.id,  //公司id
-        serviceDetail: [{}],
-        invoiceType: OTHER_INVOICE,
+    const invoiceMessage = {
+      AmountInFiguers: "5.15",
+      CommodityAmount: [{
+        word: "12345.89",
+        row: "1"
+      }, {
+        word: "12345.89",
+        row: "1"
+      }],
+      CommodityName: [
+        {
+        word: "货物可乐",
+        row: "1"
+      },
+        {
+        word: "货物可乐",
+        row: "1"
       }
-    } else {
-      const invoiceMessage = JSON.parse(options.message)
+    ],
+      CommodityTax: [{
+          word: "0.00",
+          row: "2"
+        },
+        {
+          word: "0.00",
+          row: "2"
+        }],
+      InvoiceDate: "2017年09月01日",
+      InvoiceNum: "00593803",
+      InvoiceType: "专用发票",
+      PurchaserAddress: ";北京市海淀区查石口路号天信息甲18就66888",
+      PurchaserBank: "测试京市海淀区查石口路甲18号就天信息;北",
+      PurchaserName: "航天信息份有限公司",
+      SellerName: "航天信息股份有限公司",
+    }
+
+    this.company = {
+      id: 2,
+      name: '航天信息份有限公司',
+      contactName: 'embark',
+      registerQualificationStatus: false,
+      registerNum: '1213',
+      contactPhone: '12345678910'
+    }
+
+    // if (!options.message) {
+    //   this.message = {
+    //     "no": wepy.$store.getState().userInfo.no, //微信id
+    //     "id": this.company.id,  //公司id
+    //     serviceDetail: [{}],
+    //     invoiceDate: this.formatDate(new Date()),
+    //     invoiceType: OTHER_INVOICE,
+    //   }
+    // } else {
+      // const invoiceMessage = JSON.parse(options.message)
        // 发票识别后的数据不够直观，重整改数据
       let resortServiceDetail = []
       invoiceMessage.CommodityName.forEach((item, index) => {
@@ -986,9 +688,8 @@ export default class Message extends wepy.page {
       InvoiceType = InvoiceType === '专用发票' ? SPECIAL_INVOICE : (InvoiceType === '普通发票？' ? PLAIN_INVOICE : OTHER_INVOICE)
 
       this.message = {
-        "no": wepy.$store.getState().userInfo.no, //微信id
+        // "no": wepy.$store.getState().userInfo.no, //微信id
         "id": this.company.id,  //公司id
-
         "amountInFiguers": AmountInFiguers, //价税合计
         "serviceDetail": resortServiceDetail,  //信息详情
         "invoiceDate": InvoiceDate, //开票日期
@@ -996,16 +697,8 @@ export default class Message extends wepy.page {
         "invoiceType": InvoiceType,
         "purchaserName": PurchaserName,
         "sellerName": SellerName,
-
-        // "identity": "购买方",
-        // "discription": "这是业务描述",
-        // "reason": 1,  //业务产生原因
-        // "project": "这是业务所属项目",
-        // "whoPays": 1, //由谁支付
-        // "thirdPartyName": "", //第三方名称
-        // "employeeName": "xiu小明"  //员工名称
       }
-    }
+    // }
 
     if (this.company.name === this.message.PurchaserName) {
       this.message.identity = PURCHASER
@@ -1013,9 +706,8 @@ export default class Message extends wepy.page {
       this.message.identity = SELLER
     }
 
-// TODO: 暂定
     if (this.message.serviceDetail.length === 0) {
-      // this.handleAddDetail(0)
+      this.handleAddDetail()
     }
   }
 
@@ -1029,15 +721,6 @@ export default class Message extends wepy.page {
       let tempFront = this.message.serviceDetail.slice(0, index + 1)
       let tempBack = this.message.serviceDetail.slice(index + 1)
       this.message.serviceDetail = tempFront.concat(this.tempDetail, tempBack)
-      //
-      // let tempAmountFront = this.message.CommodityAmount.slice(0, index + 1)
-      // let tempAmountBack = this.message.CommodityAmount.slice(index + 1)
-      // this.message.CommodityAmount = tempNameFront.concat([{word: this.tempDetail.CommodityAmount}], tempNameBack)
-      //
-      // let tempTaxFront = this.message.CommodityTax.slice(0, index + 1)
-      // let tempTaxBack = this.message.CommodityTax.slice(index + 1)
-      // this.message.CommodityTax = tempNameFront.concat([{word: this.tempDetail.CommodityTax}], tempNameBack)
-
       this.tempDetail = {}
       wx.showToast({
         title: '保存成功'
@@ -1045,12 +728,6 @@ export default class Message extends wepy.page {
     }
   }
 
-  // 删除商品信息
-  handleDeleteDetail(index) {
-    this.message.serviceDetail.splice(index, 1)
-    wx.showToast({
-      title: '删除成功',
-    })
-  }
+
 }
 </script>
